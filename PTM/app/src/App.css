@@ -1,0 +1,23 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ListItem Styling */
+.listItem-grid {
+display: flex;
+flex-direction: column;
+}
+
+.listItem-main-row {
+  display: flex;
+  justify-content: start;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.listItem-second-row {
+  display: flex;
+  grid-row-start: 2;
+}

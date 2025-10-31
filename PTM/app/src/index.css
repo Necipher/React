@@ -1,0 +1,228 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.center {
+  justify-self: center;
+}
+
+/* main-grid Styling */
+.main-grid {
+  display: grid;
+  grid-template-columns: 10% 90%;
+
+  height: 100vh;
+  width: 100vw;
+}
+
+.page-grid {
+  padding: 5px 10px 0px 10px;
+  grid-column-start: 2;
+
+  display: grid;
+  grid-template-rows: 10% 90%;
+}
+
+.header {
+  grid-row-start: 1;
+  border-bottom: 0.1px solid hsl(0, 0%, 80%);
+  padding: 0px 0px 2px 0px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  font-weight: 100;
+  font-size: 0.8rem;
+}
+
+.content {
+  padding: 10px 0px 0px 0px;
+  grid-row-start: 2;
+    /* border: 1px dashed black; */
+}
+
+/* sideBar Styling */
+.sideBar-grid {
+  display: grid;
+  grid-template-rows: 10% 80% 10%;
+  padding: 10px 0px 10px 10px;
+  border-radius: 0px 10px 10px 0px;
+
+  box-shadow: 10px 0px 10px hsl(0, 0%, 90%)
+}
+
+.sideBar-main {
+  grid-row-start: 1;
+}
+
+.sideBar-lists {
+  grid-row-start: 2;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+}
+
+.sideBar-control {
+  grid-row-start: 3;
+
+  display: flex;
+  align-items: flex-end;
+}
+
+.listName-button {
+  margin: 5px;
+  border: none;
+  background-color: transparent;
+}
+
+.listName-button:hover {
+  text-decoration: underline;
+}
+
+.addTaskItem {
+display: grid;
+grid-template-columns: 2% 98%;
+grid-template-rows: 1fr 1fr;
+padding: 0px 0px 0px 10px;
+}
+
+.inputCheckMark {
+grid-column-start: 1;
+grid-row-start: 1;
+
+align-self: center;
+}
+
+.inputTitle {
+grid-column-start: 2;
+grid-row-start: 1;
+
+font-size: 1rem;
+font-weight: 700
+}
+
+.inputDescription {
+grid-column-start: 2;
+grid-row-start: 2;
+font-size: 0.8rem;
+}
+
+/* ListItem Styling */
+.listItem-grid {
+  display: flex;
+  flex-direction: column;
+
+  margin: 0px 0px 10px 0px;
+  padding-left: 10px;
+}
+
+.listItem-main-row {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 5px;
+
+  font-size: 1rem;
+  font-weight: 700
+}
+
+.listItem-second-row {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 0px 0px 0px;
+
+  font-size: 0.8rem;
+  font-weight: 100;
+  font-style: italic;
+  color: grey;
+}
+
+.listItem-third-row {
+  display: flex;
+  margin-top: 5px;
+  padding-bottom: 5px;
+
+  gap: 20px;
+  align-items: center;
+}
+
+.listItem-third-row > div {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.checked-status {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  position: relative;
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  border-radius: 50%;
+  border: 1px solid black;
+}
+
+.checked-status:checked::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: green;
+}
+
+.delete-button {
+  background-color: red;
+  color: black;
+  font-weight: 1000;
+  font-size: 0.7rem;
+  border: none;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+}
+
+.delete-button::after {
+  content: ""
+}
+
+.delete-button:hover::after {
+  content: "X"
+}
+
+.urgency-button-resting {
+  background-color: hsl(0, 0%, 90%);
+  color: black;
+  font-weight: 100;
+  font-size: 0.5rem;
+  border: none;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+}
+
+.urgency-button-clicked {
+  background-color: orange;
+  color: black;
+  font-weight: 1000;
+  font-size: 0.5rem;
+  border: none;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+}
+
+.completed {
+  opacity: 0.4;
+}
