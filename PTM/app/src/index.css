@@ -31,9 +31,9 @@
   border-bottom: 0.1px solid hsl(0, 0%, 80%);
   padding: 0px 0px 2px 0px;
 
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
 
   font-weight: 100;
   font-size: 0.8rem;
@@ -42,7 +42,7 @@
 .content {
   padding: 10px 0px 0px 0px;
   grid-row-start: 2;
-    /* border: 1px dashed black; */
+  /* border: 1px dashed black; */
 }
 
 /* sideBar Styling */
@@ -86,31 +86,54 @@
 }
 
 .addTaskItem {
-display: grid;
-grid-template-columns: 2% 98%;
-grid-template-rows: 1fr 1fr;
-padding: 0px 0px 0px 10px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px;
+  grid-template-rows: 1fr 1fr;
+  padding: 0px 0px 10px 10px;
+  width: 100%;
+  align-items: start;
 }
 
 .inputCheckMark {
-grid-column-start: 1;
-grid-row-start: 1;
+  grid-column-start: 1;
+  grid-row-start: 1;
 
-align-self: center;
+  align-self: center;
 }
 
 .inputTitle {
-grid-column-start: 2;
-grid-row-start: 1;
+  grid-column-start: 2;
+  grid-row-start: 1;
 
-font-size: 1rem;
-font-weight: 700
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+
+  width: 100%;
+  outline: none;
+  caret-color: blue;
+
+  opacity: 50%;
 }
 
 .inputDescription {
-grid-column-start: 2;
-grid-row-start: 2;
-font-size: 0.8rem;
+  grid-column-start: span 2;
+  grid-row-start: 2;
+  border: none;
+  width: 100%;
+  outline: none;
+  caret-color: blue;
+
+  font-size: 0.8rem;
+  font-weight: 100;
+  font-style: italic;
+  color: grey;
+}
+
+input::placeholder {
+  opacity: 1.5;
+  color: lightblue;
 }
 
 /* ListItem Styling */
@@ -118,8 +141,7 @@ font-size: 0.8rem;
   display: flex;
   flex-direction: column;
 
-  margin: 0px 0px 10px 0px;
-  padding-left: 10px;
+  padding: 0px 0px 10px 10px;
 }
 
 .listItem-main-row {
@@ -152,7 +174,7 @@ font-size: 0.8rem;
   align-items: center;
 }
 
-.listItem-third-row > div {
+.listItem-third-row>div {
   display: flex;
   gap: 2px;
   align-items: center;
@@ -223,6 +245,66 @@ font-size: 0.8rem;
   height: 16px;
 }
 
+.show-hide-button {
+  background-color: transparent;
+  border: none;
+
+  font-size: 0.8rem;
+  font-weight: 100;
+}
+
+.show-hide-button:hover {
+  text-decoration: underline;
+  color: lightblue;
+}
+
+.add-button {
+  grid-column-start: 2;
+  grid-row-start: 2;
+  justify-self: end;
+  align-self: end;
+
+  background-color: hsl(0, 0%, 90%);
+  color: black;
+  font-weight: 100;
+  font-size: 0.5rem;
+  border: none;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+}
+
+.add-button:hover {
+  background-color: lightblue;
+}
+
 .completed {
   opacity: 0.4;
+}
+
+.pageName {
+  grid-column-start: 1;
+  grid-row-start: 1;
+
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.numberOfRemainingTasks {
+  grid-column-start: 2;
+  grid-row-start: 1;
+  justify-self: end;
+  align-self: start;
+
+  font-size: 3rem;
+  font-weight: 300;
+
+}
+
+.numberOfCompletedTasks {
+  grid-column-start: 1;
+  grid-row-start: 2;
+
+  justify-self: start;
+  align-self: end;  
 }

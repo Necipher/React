@@ -17,6 +17,9 @@ const App = () => {
             numberOfRemainingTasks={manage.state.unCompletedSelectedListTasks.length}
             numberOfCompletedTasks={manage.state.completedSelectedListTasks.length}
             pageName={manage.state.selectedList}
+            handleClick={manage.action.setShowAddNewTask}
+            setShowCompleted={manage.action.setShowCompleted}
+            showCompleted={manage.state.showCompleted}
           />
           <Content
             handleClick={manage.action.setShowAddNewTask}
@@ -27,13 +30,18 @@ const App = () => {
               tasks={manage.state.unCompletedSelectedListTasks}
               handleDelete={manage.action.deleteFromServer}
               handleEdit={manage.action.editOnServer}
+              handleClick={manage.action.setShowAddNewTask}
+              showAddState={manage.state.showAddNewTask}
             />
             {/* After the uncompleted list, renders a list of completed items */}
-            <List
+         {!manage.state.showCompleted ? "" :
+         <List
               tasks={manage.state.completedSelectedListTasks}
               handleDelete={manage.action.deleteFromServer}
               handleEdit={manage.action.editOnServer}
-            />
+              handleClick={manage.action.setShowAddNewTask}
+              showAddState={manage.state.showAddNewTask}
+            />}
             {/* When a state is true it will show and offer to add to the list */}
 
             {manage.state.showAddNewTask ?
@@ -57,6 +65,7 @@ function appController() {
 
   const [selectedList, setSelectedList] = useState("Home Page")
   const [showAddNewTask, setShowAddNewTask] = useState(true)
+  const [showCompleted, setShowCompleted] = useState(false)
 
   // Generating lists from loaded data
   const selectedListTasks = isLoading ? [] : listData[selectedList]
@@ -121,6 +130,7 @@ function appController() {
       isLoading,
       selectedList,
       showAddNewTask,
+      showCompleted,
       unCompletedSelectedListTasks,
       completedSelectedListTasks,
       allUserLists
@@ -128,6 +138,7 @@ function appController() {
     action: {
       setSelectedList,
       setShowAddNewTask,
+      setShowCompleted,
       sendToServer,
       handleSubmit,
       deleteFromServer,
@@ -141,35 +152,44 @@ function AddTask({ handleSubmit }) {
 
   return (
 
-    <div className='addTaskItem'>
-      <form onSubmit={(e) => { e.preventDefault(), handleSubmit(inputData, setInputData) }}>
-        <input
-          type='checkbox'
-          className='checked-status inputCheckMark'
-          checked={inputData.checked}
-          onChange={() => setInputData({ ...inputData, "checked": !inputData.checked })}
-        />
-        <input
-          autoFocus
-          type='text'
-          placeholder='Title...'
-          className='inputTitle' value={inputData.title}
-          onChange={e => setInputData({ ...inputData, "title": e.target.value })}
-        ></input>
-        <input
-          type='textarea'
-          placeholder='Description...'
-          className='inputDescription'
-          value={inputData.description}
-          onChange={e => setInputData({ ...inputData, "description": e.target.value })}
-        ></input>
-        <button type='submit'>Click</button>
-      </form>
-    </div>
+    <form
+      className='addTaskItem'
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+          handleSubmit(inputData)
+        }
+      }}
+    >
+      <input
+        type='checkbox'
+        className='checked-status inputCheckMark'
+        checked={inputData.checked}
+        onChange={() => setInputData({ ...inputData, "checked": !inputData.checked })}
+      />
+      <input
+        autoFocus
+        type='text'
+        placeholder='Write a Title...'
+        className='inputTitle' value={inputData.title}
+        onChange={e => setInputData({ ...inputData, "title": e.target.value })}
+      ></input>
+      <input
+        type='text'
+        placeholder='Write a Description...'
+        className='inputDescription'
+        value={inputData.description}
+        onChange={e => setInputData({ ...inputData, "description": e.target.value })}
+      ></input>
+    </form>
   )
 }
 
-function List({ tasks, handleDelete, handleEdit }) {
+function List({
+  tasks,
+  handleDelete,
+  handleEdit,
+  handleClick,
+}) {
   return (
     tasks.map(task =>
       <ListItem
@@ -180,13 +200,22 @@ function List({ tasks, handleDelete, handleEdit }) {
         id={task.id}
         handleDelete={() => handleDelete(task.id)}
         handleEdit={handleEdit}
+        handleClick={handleClick}
       />
     )
   )
 }
 
 // Created task field component
-function ListItem({ titleText = "Title of a task", descriptionText = "Optional Description...", checked, id, handleDelete, handleEdit }) {
+function ListItem({
+  titleText = "Title of a task",
+  descriptionText = "Optional Description...",
+  checked,
+  id,
+  handleDelete,
+  handleEdit,
+  handleClick,
+}) {
   const [isEditOn, setIsEditOn] = useState(false)
   const [localData, setLocalData] = useState({
     "title": titleText,
@@ -196,7 +225,20 @@ function ListItem({ titleText = "Title of a task", descriptionText = "Optional D
   })
 
   return (
-    <div className={localData.checked ? 'listItem-grid completed' : 'listItem-grid'}>   {/* Grid wrapper for CSS organization */}
+    <div className={localData.checked ? 'listItem-grid completed' : 'listItem-grid'}
+      onClick={(e) => e.stopPropagation()}
+      tabIndex="-1"
+      onFocus={() => {
+        setIsEditOn(true);
+        handleClick(false)
+      }}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+          setIsEditOn(false);
+          handleEdit(localData);
+        }
+      }}
+    >   {/* Grid wrapper for CSS organization */}
       <div className='listItem-main-row'>   {/* Main-row, always vissible with quick access to editing its content and checked status*/}
         <input
           className='checked-status'
@@ -209,17 +251,13 @@ function ListItem({ titleText = "Title of a task", descriptionText = "Optional D
           }}
         />
         {!isEditOn ?
-          <p onClick={() => setIsEditOn(!isEditOn)}>{localData.title}</p> :
+          <p>{localData.title}</p> :
           <input
             autoFocus
             type='text'
             className='inputTitle'
             value={localData.title}
             onChange={(e) => setLocalData({ ...localData, "title": e.target.value })}
-          onBlur={() => {
-            handleEdit(localData);
-            setIsEditOn(false)
-          }}
           />}
       </div>
       <div className='listItem-second-row'>   {/* Second-row, shows only if a description is inputed or when editing of the Main-row is clicked */}
@@ -247,15 +285,14 @@ function ListItem({ titleText = "Title of a task", descriptionText = "Optional D
   )
 }
 
-
-
-
 // Create a Header for the showed page
-function Header({ numberOfRemainingTasks, numberOfCompletedTasks, pageName }) {
+function Header({ numberOfRemainingTasks, numberOfCompletedTasks, pageName, handleClick, showCompleted, setShowCompleted }) {
   return (
     <div className='header'>
-      <h1>{pageName} | {numberOfRemainingTasks}</h1>
-      <p>Completed: {numberOfCompletedTasks}  | Show</p>
+      <p className='pageName'>{pageName}</p>
+      <p className='numberOfRemainingTasks'>{numberOfRemainingTasks}</p>
+      <button className='add-button' onClick={() => handleClick(true)}>+</button>
+      <p className='numberOfCompletedTasks'>Completed: {numberOfCompletedTasks}  | <button className='show-hide-button' onClick={() => setShowCompleted(!showCompleted)}>{showCompleted ? "Hide" : "Show"}</button></p>
     </div>
   )
   // Page name taken from the list name
@@ -284,19 +321,20 @@ function SideBar({ userlists, setSelectedList }) {
   )
 }
 
-
-
 function Content({ children, handleClick, showAddState }) {
   return (
-    <div className='content'>
+    <div className='content'
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          handleClick(!showAddState)
+        }
+      }}
+    >
       {children}
     </div>
   )
 }
 
-// Decide about state location
-
-// Add, Remove, Edit, Complete button functionality
 
 
 
