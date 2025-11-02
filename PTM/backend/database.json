@@ -2,13 +2,13 @@
   "Home Page": [
     {
       "title": "Dummy Title 1",
-      "description": "",
+      "description": "Dummy description",
       "checked": false,
       "id": 54
     },
     {
       "title": "Dummy Title 2",
-      "description": "",
+      "description": "Dummy description",
       "checked": false,
       "id": 21
     },
@@ -21,29 +21,16 @@
     {
       "title": "Dummy Title 4",
       "description": "Dummy description",
-      "checked": false,
+      "checked": true,
       "id": 65
     },
     {
-      "title": "Real Title 1",
-      "description": "",
-      "checked": false,
-      "id": "a20db939-d0a4-4e91-a157-c34cc0064d5d"
-    },
-    {
-      "title": "Real Title 2",
-      "description": "",
-      "checked": false,
-      "id": "d371da09-6f85-47b4-b405-4d24e46a0208"
+      "title": "Dummy Title 5",
+      "description": "Dummy description",
+      "checked": true,
+      "id": "62999b0d-7047-48f1-9fc4-6fc39c937ba5"
     }
   ],
-  "To Do": [
-    {
-      "title": "First Task added",
-      "description": "",
-      "checked": false,
-      "id": "4bcfe92c-dc49-417a-893b-2278d9b04d7f"
-    }
-  ],
+  "To Do": [],
   "Homework": []
 }
