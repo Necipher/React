@@ -2,7 +2,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 
 const App = () => {
-  const manage = appController()  /* Loads functions, state and logic from the appController custom hook */
+  const manage = appController()  /* Loads the functions, state and logic from the appController custom hook */
 
   return (
     manage.state.isLoading ?
@@ -11,10 +11,6 @@ const App = () => {
         <SideBar
           userlists={manage.state.allUserLists}
           setSelectedList={manage.action.setSelectedList}
-          handleClick={manage.action.setShowAddNewTask}
-          saveNewListName={manage.action.saveNewListNameToServer}
-          deleteList={manage.action.deleteListFromServer}
-          remainingTasks={manage.state.listData}
         />
         <div className='page-grid'>
           <Header
@@ -38,14 +34,14 @@ const App = () => {
               showAddState={manage.state.showAddNewTask}
             />
             {/* After the uncompleted list, renders a list of completed items */}
-            {!manage.state.showCompleted ? "" :
-              <List
-                tasks={manage.state.completedSelectedListTasks}
-                handleDelete={manage.action.deleteFromServer}
-                handleEdit={manage.action.editOnServer}
-                handleClick={manage.action.setShowAddNewTask}
-                showAddState={manage.state.showAddNewTask}
-              />}
+         {!manage.state.showCompleted ? "" :
+         <List
+              tasks={manage.state.completedSelectedListTasks}
+              handleDelete={manage.action.deleteFromServer}
+              handleEdit={manage.action.editOnServer}
+              handleClick={manage.action.setShowAddNewTask}
+              showAddState={manage.state.showAddNewTask}
+            />}
             {/* When a state is true it will show and offer to add to the list */}
 
             {manage.state.showAddNewTask ?
@@ -68,14 +64,15 @@ function appController() {
   const [isLoading, setIsLoading] = useState(true)
 
   const [selectedList, setSelectedList] = useState("Home Page")
-  const [showAddNewTask, setShowAddNewTask] = useState(false)
+  const [showAddNewTask, setShowAddNewTask] = useState(true)
   const [showCompleted, setShowCompleted] = useState(false)
 
   // Generating lists from loaded data
-  const selectedListTasks = isLoading ? [] : listData[selectedList].pageContent
+  const selectedListTasks = isLoading ? [] : listData[selectedList]
   const unCompletedSelectedListTasks = selectedListTasks.filter(task => task.checked == false)
   const completedSelectedListTasks = selectedListTasks.filter(task => task.checked == true)
-  const allUserLists = isLoading ? [] : Object.keys(listData).map(key => ({ "listName": key, "id": listData[key].id }))
+  const allUserLists = isLoading ? [] : Object.keys(listData)
+
 
   // Data from server
   async function getData() {
@@ -99,15 +96,6 @@ function appController() {
     getData();
   }
 
-  async function saveNewListNameToServer(dataToSave) {
-    const req = await fetch('http://localhost:8002/api:newList', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...dataToSave })
-    })
-    getData();
-  }
-
   // OnSubmit to send data to server
   function handleSubmit(newData, restartNewData) {
     const dataToPost = { ...newData, "id": crypto.randomUUID(), "forPage": selectedList }
@@ -126,15 +114,6 @@ function appController() {
     getData();
   }
 
-  async function deleteListFromServer(idForDeletion, listPage) {
-    const req = await fetch('http://localhost:8002/api:deleteList', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ "idForDeletion": idForDeletion, "listName": listPage })
-    })
-    getData();
-  }
-
   async function editOnServer(subtituteData) {
     const req = await fetch('http://localhost:8002/api', {
       method: 'PUT',
@@ -143,7 +122,6 @@ function appController() {
     })
     getData();
   }
-
 
 
   return {
@@ -164,9 +142,7 @@ function appController() {
       sendToServer,
       handleSubmit,
       deleteFromServer,
-      editOnServer,
-      saveNewListNameToServer,
-      deleteListFromServer
+      editOnServer
     }
   }
 }
@@ -315,10 +291,7 @@ function Header({ numberOfRemainingTasks, numberOfCompletedTasks, pageName, hand
     <div className='header'>
       <p className='pageName'>{pageName}</p>
       <p className='numberOfRemainingTasks'>{numberOfRemainingTasks}</p>
-      <div className='right-bottom-corner'>
-      <button className='add-button'>| |</button>
       <button className='add-button' onClick={() => handleClick(true)}>+</button>
-      </div>
       <p className='numberOfCompletedTasks'>Completed: {numberOfCompletedTasks}  | <button className='show-hide-button' onClick={() => setShowCompleted(!showCompleted)}>{showCompleted ? "Hide" : "Show"}</button></p>
     </div>
   )
@@ -328,68 +301,22 @@ function Header({ numberOfRemainingTasks, numberOfCompletedTasks, pageName, hand
 }
 
 // Create sidebar`
-function SideBar({ userlists, setSelectedList, handleClick, saveNewListName, deleteList, remainingTasks }) {
-  const [showAddList, setShowAddList] = useState(false)
-  const [newListName, setNewListName] = useState("")
-
+function SideBar({ userlists, setSelectedList }) {
   return (
-    <div className='sideBar-grid' onClick={() => handleClick(false)}>
+    <div className='sideBar-grid'>
       <div className='sideBar-main'>    {/* // Landing page where it shows all reminders */}
-        <button className='landing-button' onClick={(e) => setSelectedList(e.target.textContent)}>Home Page</button>
+        <button className='listName-button' onClick={(e) => setSelectedList(e.target.textContent)}>Home Page</button>
       </div>
       <div className='sideBar-lists'>   {/* // Showed users lists */}
         <h4>Lists:</h4>
-        {userlists.map((entry, index) =>
-          <SideBarItem
-            listName={entry.listName}
-            id={entry.id}
-            index={index}
-            setSelectedList={setSelectedList}
-            deleteList={deleteList}
-            remainingTasks={remainingTasks}
-          />)}
-        <div className='sideBar-control'>
-          <button
-            className='eddit-list-button'
-            onClick={() => {
-              if (showAddList && newListName != "") {
-                saveNewListName({ "newListName": newListName, id: crypto.randomUUID(), pageContent: [] })
-                setNewListName("")
-              }
-              setShowAddList(!showAddList)
-            }}
-
-          >{showAddList && newListName != "" ? "+" : showAddList ? "-" : "+"}</button>
-          {showAddList ? <input autoFocus className='inputList' value={newListName} onChange={(e) => setNewListName(e.target.value)} /> : ""}
-        </div>
+        {userlists.map((listName, index) => <button key={index} onClick={() => setSelectedList(listName)} className='listName-button'>{listName}</button>)}
       </div>
-
-    </div>
-  )
-}
-
-function SideBarItem({ listName, id, index, setSelectedList, deleteList, remainingTasks }) {
-  const [showMoreButtons, setShowMoreButtons] = useState(false)
-  const [localSideBarData, setLocalSideBarData] = useState({ "listName": listName, "id": id })
-
-  return (
-    <div className='list'>
-      <button
-        className='eddit-list-button'
-        onClick={() => setShowMoreButtons(!showMoreButtons)
-        }>{showMoreButtons ? '<' : '>'}</button>
-      {showMoreButtons ? 
-      <button className='eddit-list-button' onClick={() => {deleteList(id, listName); setSelectedList("Home Page")}}>X</button> : ""}
-      {showMoreButtons ?
-        <input
-          autoFocus
-          type='text'
-          className='inputList'
-          value={localSideBarData.listName}
-          onChange={(e) => setLocalSideBarData({ ...localSideBarData, "listName": e.target.value })}
-        /> :
-        <button key={index} onClick={() => setSelectedList(localSideBarData.listName)} className='listName-button'>{localSideBarData.listName}</button>}
-      <p className='tracker'>{remainingTasks[localSideBarData.listName].pageContent.length}</p>
+      <div className='sideBar-control'>
+        {/* // Add a list button */}
+        <button>Add list</button>
+        {/* // Delete a list button */}
+        <button></button>
+      </div>
     </div>
   )
 }

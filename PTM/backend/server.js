@@ -40,47 +40,29 @@ app.post('/api', (req, res) => {
         return
     }
 
-    siteData[forPage].pageContent.push(dataToSave);
+    siteData[forPage].push(dataToSave);
     res.json("Data recieved");
     saveData(siteData);
 })
 
-app.post('/api:newList', (req, res) => {
-    const {newListName, ...restOfData} = req.body
-    siteData[newListName] = {...restOfData}
-    res.json("List added")
-    saveData(siteData)
-})
-
 app.delete('/api', (req, res) => {
     const { idForDeletion, forPage } = req.body;
-    const dataDeleted = siteData[forPage].pageContent.filter(task => task.id != idForDeletion);
-    siteData[forPage].pageContent = dataDeleted;
+    const dataDeleted = siteData[forPage].filter(task => task.id != idForDeletion);
+    siteData[forPage] = dataDeleted;
 
     res.json("Data deleted");
     saveData(siteData);
 
 })
 
-app.delete('/api:deleteList', (req, res) => {
-    const { idForDeletion, listName } = req.body
-    if (siteData[listName].id === idForDeletion) {
-        delete siteData[listName]
-
-        res.json("List deleted")
-        saveData(siteData)
-    }
-})
-
 app.put('/api', (req, res) => {
     const { forPage, ...subtituteData } = req.body;
-    const replacement = siteData[forPage].pageContent.map(task => task.id === subtituteData.id ? subtituteData : task)
-    siteData[forPage].pageContent = replacement
+    const replacement = siteData[forPage].map(task => task.id === subtituteData.id ? subtituteData : task)
+    siteData[forPage] = replacement
 
     res.json("Data updated")
     saveData(siteData)
 })
-
 
 // Initialze listening
 const PORT = 8002
