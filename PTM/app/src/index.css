@@ -59,21 +59,6 @@
   grid-row-start: 1;
 }
 
-.landing-button {
-  height: 90%;
-  width: 90%;
-  border: none;
-  font-size: 90%;
-  font-weight: 100;
-  border-radius: 10px;
-}
-
-.landing-button:hover {
-  background-color: lightblue;
-}
-
-
-
 .sideBar-lists {
   grid-row-start: 2;
 
@@ -84,18 +69,10 @@
 }
 
 .sideBar-control {
-  margin: 5px 0px 0px 0px;
   grid-row-start: 3;
 
   display: flex;
   align-items: flex-end;
-  gap: 10px;
-}
-
-.list {
-  display: flex;
-  gap: 5px;
-  width: 90%;
 }
 
 .listName-button {
@@ -158,21 +135,6 @@ input::placeholder {
   opacity: 1.5;
   color: lightblue;
 }
-
-.inputList {
-  font-size: 0.8rem;
-  font-weight: 1 100;
-  border: none;
-  justify-self: center;
-  align-self: center;
-
-  width: 100%;
-  outline: none;
-  caret-color: blue;
-
-  opacity: 50%;
-}
-
 
 /* ListItem Styling */
 .listItem-grid {
@@ -242,17 +204,6 @@ input::placeholder {
   background-color: green;
 }
 
-.right-bottom-corner {
-  grid-column-start: 2;
-  grid-row-start: 2;
-  justify-self: end;
-  align-self: end;
-
-  display: flex;
-  gap: 5px;  
-}
-
-/* Buttons customization */
 .delete-button {
   background-color: red;
   color: black;
@@ -308,10 +259,15 @@ input::placeholder {
 }
 
 .add-button {
+  grid-column-start: 2;
+  grid-row-start: 2;
+  justify-self: end;
+  align-self: end;
+
   background-color: hsl(0, 0%, 90%);
   color: black;
   font-weight: 100;
-  font-size: 0.7rem;
+  font-size: 0.5rem;
   border: none;
   border-radius: 50%;
   width: 25px;
@@ -350,34 +306,5 @@ input::placeholder {
   grid-row-start: 2;
 
   justify-self: start;
-  align-self: end;
-}
-
-.eddit-list-button {
-  flex: 0 0 auto;
-  aspect-ratio: 1 / 1;
-
-  grid-column-start: 2;
-  grid-row-start: 2;
-  justify-self: center;
-  align-self: center;
-
-  background-color: hsl(0, 0%, 90%);
-  color: black;
-  font-weight: 100;
-  font-size: 0.5rem;
-  border: none;
-  border-radius: 50%;
-  width: 15px;
-  height: 15px;
-}
-
-.eddit-list-button:hover {
-  background-color: lightblue;
-}
-
-.tracker {
-  font-size: 0.8rem;
-  align-self: center;
-  margin-left: auto;
+  align-self: end;  
 }
