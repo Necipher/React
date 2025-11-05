@@ -92,7 +92,6 @@
 }
 
 .sideBar-control {
-  margin: 5px 0px 0px 0px;
   grid-row-start: 3;
 
   display: flex;
@@ -326,10 +325,15 @@ input::placeholder {
 }
 
 .add-button {
+  grid-column-start: 2;
+  grid-row-start: 2;
+  justify-self: end;
+  align-self: end;
+
   background-color: hsl(0, 0%, 90%);
   color: black;
   font-weight: 100;
-  font-size: 0.7rem;
+  font-size: 0.5rem;
   border: none;
   border-radius: 50%;
   width: 25px;
