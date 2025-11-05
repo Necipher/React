@@ -81,6 +81,16 @@ app.put('/api', (req, res) => {
     saveData(siteData)
 })
 
+app.put('/api:editName', (req, res) => {
+    const {oldName, newName, id} = req.body
+    if (siteData[oldName].id === id) {
+        siteData[newName] = siteData[oldName];
+        delete siteData[oldName];
+    }
+
+    res.json("List Name Updated")
+})
+
 
 // Initialze listening
 const PORT = 8002

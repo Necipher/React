@@ -1,13 +1,14 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const App = () => {
   const manage = appController()  /* Loads functions, state and logic from the appController custom hook */
 
+
   return (
     manage.state.isLoading ?
       <h1 className='center'>Loading Data...</h1> :
-      <div className='main-grid'>
+      <div className='main-grid' style={{ gridTemplateColumns: `clamp(10%, ${manage.state.sideWidth}%, 25%) 1fr` }}>
         <SideBar
           userlists={manage.state.allUserLists}
           setSelectedList={manage.action.setSelectedList}
@@ -15,6 +16,8 @@ const App = () => {
           saveNewListName={manage.action.saveNewListNameToServer}
           deleteList={manage.action.deleteListFromServer}
           remainingTasks={manage.state.listData}
+          nameUpdate={manage.action.updateNameOnServer}
+          setWidth={manage.action.setSideWidth}
         />
         <div className='page-grid'>
           <Header
@@ -70,6 +73,7 @@ function appController() {
   const [selectedList, setSelectedList] = useState("Home Page")
   const [showAddNewTask, setShowAddNewTask] = useState(false)
   const [showCompleted, setShowCompleted] = useState(false)
+  const [sideWidth, setSideWidth] = useState(12)
 
   // Generating lists from loaded data
   const selectedListTasks = isLoading ? [] : listData[selectedList].pageContent
@@ -109,11 +113,10 @@ function appController() {
   }
 
   // OnSubmit to send data to server
-  function handleSubmit(newData, restartNewData) {
+  function handleSubmit(newData) {
     const dataToPost = { ...newData, "id": crypto.randomUUID(), "forPage": selectedList }
     sendToServer(dataToPost);
-    restartNewData({ "title": "", "description": "", "checked": false })
-    setShowAddNewTask(false)
+
   }
 
   // Delete data from server
@@ -144,6 +147,14 @@ function appController() {
     getData();
   }
 
+  async function updateNameOnServer(oldName, newName, id) {
+    const req = await fetch('http://localhost:8002/api:editName', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ "oldName": oldName, "newName": newName, "id": id })
+    })
+    getData();
+  }
 
 
   return {
@@ -155,7 +166,8 @@ function appController() {
       showCompleted,
       unCompletedSelectedListTasks,
       completedSelectedListTasks,
-      allUserLists
+      allUserLists,
+      sideWidth
     },
     action: {
       setSelectedList,
@@ -166,7 +178,9 @@ function appController() {
       deleteFromServer,
       editOnServer,
       saveNewListNameToServer,
-      deleteListFromServer
+      deleteListFromServer,
+      updateNameOnServer,
+      setSideWidth
     }
   }
 }
@@ -252,9 +266,12 @@ function ListItem({
     <div className={localData.checked ? 'listItem-grid completed' : 'listItem-grid'}
       onClick={(e) => e.stopPropagation()}
       tabIndex="-1"
-      onFocus={() => {
-        setIsEditOn(true);
+      onFocus={(e) => {
+        if (e.target.name !== 'complete-button') {
+          setIsEditOn(true);
+        }
         handleClick(false)
+
       }}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget)) {
@@ -265,6 +282,7 @@ function ListItem({
     >   {/* Grid wrapper for CSS organization */}
       <div className='listItem-main-row'>   {/* Main-row, always vissible with quick access to editing its content and checked status*/}
         <input
+          name='complete-button'
           className='checked-status'
           type='checkbox'
           checked={localData.checked}
@@ -286,7 +304,7 @@ function ListItem({
       </div>
       <div className='listItem-second-row'>   {/* Second-row, shows only if a description is inputed or when editing of the Main-row is clicked */}
         {!isEditOn && !localData.description ? "" :
-          !isEditOn ? <p onClick={() => setIsEditOn(!isEditOn)}>{localData.description}</p> :
+          !isEditOn ? <p className="desc" onClick={() => setIsEditOn(!isEditOn)}>{localData.description}</p> :
             <input
               type='text'
               className='inputDescription'
@@ -316,21 +334,41 @@ function Header({ numberOfRemainingTasks, numberOfCompletedTasks, pageName, hand
       <p className='pageName'>{pageName}</p>
       <p className='numberOfRemainingTasks'>{numberOfRemainingTasks}</p>
       <div className='right-bottom-corner'>
-      <button className='add-button'>| |</button>
-      <button className='add-button' onClick={() => handleClick(true)}>+</button>
+        <button className='add-button'>| |</button>
+        <button className='add-button' onClick={() => handleClick(true)}>+</button>
       </div>
       <p className='numberOfCompletedTasks'>Completed: {numberOfCompletedTasks}  | <button className='show-hide-button' onClick={() => setShowCompleted(!showCompleted)}>{showCompleted ? "Hide" : "Show"}</button></p>
     </div>
   )
-  // Page name taken from the list name
-  // Show stats: Nr. of Completed and  Nr. of Remaining tasks
-  // Togle for completed items
 }
 
 // Create sidebar`
-function SideBar({ userlists, setSelectedList, handleClick, saveNewListName, deleteList, remainingTasks }) {
+function SideBar({ userlists, setSelectedList, handleClick, saveNewListName, deleteList, remainingTasks, nameUpdate, setWidth }) {
   const [showAddList, setShowAddList] = useState(false)
   const [newListName, setNewListName] = useState("")
+  const isResizing = useRef(false)
+
+  useEffect(() => {
+
+    function onMouseMove(e) {
+      if (!isResizing.current) return
+      setWidth((e.clientX / window.innerWidth) * 100)
+    }
+
+    function onMouseUp() {
+      isResizing.current = false
+    }
+
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+
+    return () => {
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+    }
+
+  }, [])
+
 
   return (
     <div className='sideBar-grid' onClick={() => handleClick(false)}>
@@ -347,39 +385,46 @@ function SideBar({ userlists, setSelectedList, handleClick, saveNewListName, del
             setSelectedList={setSelectedList}
             deleteList={deleteList}
             remainingTasks={remainingTasks}
+            nameUpdate={nameUpdate}
           />)}
         <div className='sideBar-control'>
           <button
-            className='eddit-list-button'
+            className='edit-list-button'
             onClick={() => {
               if (showAddList && newListName != "") {
                 saveNewListName({ "newListName": newListName, id: crypto.randomUUID(), pageContent: [] })
                 setNewListName("")
               }
               setShowAddList(!showAddList)
-            }}
-
-          >{showAddList && newListName != "" ? "+" : showAddList ? "-" : "+"}</button>
+            }}>{showAddList && newListName != "" ? "+" : showAddList ? "-" : "+"}</button>
           {showAddList ? <input autoFocus className='inputList' value={newListName} onChange={(e) => setNewListName(e.target.value)} /> : ""}
         </div>
       </div>
-
+      <div className='handle' onMouseDown={(e) => {
+        e.preventDefault()
+        isResizing.current = true
+        }}></div>
     </div>
   )
 }
 
-function SideBarItem({ listName, id, index, setSelectedList, deleteList, remainingTasks }) {
+function SideBarItem({ listName, id, index, setSelectedList, deleteList, remainingTasks, nameUpdate }) {
   const [showMoreButtons, setShowMoreButtons] = useState(false)
   const [localSideBarData, setLocalSideBarData] = useState({ "listName": listName, "id": id })
 
   return (
     <div className='list'>
       <button
-        className='eddit-list-button'
-        onClick={() => setShowMoreButtons(!showMoreButtons)
+        className='edit-list-button'
+        onClick={() => {
+          setShowMoreButtons(!showMoreButtons)
+          if (showMoreButtons && localSideBarData.listName && listName !== localSideBarData.listName) {
+            nameUpdate(listName, localSideBarData.listName, id)
+          }
+        }
         }>{showMoreButtons ? '<' : '>'}</button>
-      {showMoreButtons ? 
-      <button className='eddit-list-button' onClick={() => {deleteList(id, listName); setSelectedList("Home Page")}}>X</button> : ""}
+      {showMoreButtons ?
+        <button className='edit-list-button delete-list-button' onClick={() => { deleteList(id, listName); setSelectedList("Home Page") }}>x</button> : ""}
       {showMoreButtons ?
         <input
           autoFocus
@@ -388,8 +433,8 @@ function SideBarItem({ listName, id, index, setSelectedList, deleteList, remaini
           value={localSideBarData.listName}
           onChange={(e) => setLocalSideBarData({ ...localSideBarData, "listName": e.target.value })}
         /> :
-        <button key={index} onClick={() => setSelectedList(localSideBarData.listName)} className='listName-button'>{localSideBarData.listName}</button>}
-      <p className='tracker'>{remainingTasks[localSideBarData.listName].pageContent.length}</p>
+        <button key={index} onClick={() => setSelectedList(localSideBarData.listName)} onDoubleClick={() => setShowMoreButtons(true)} className='listName-button'>{localSideBarData.listName}</button>}
+      <p className='tracker'>{remainingTasks[listName].pageContent.filter(task => task.checked === false).length}</p>
     </div>
   )
 }

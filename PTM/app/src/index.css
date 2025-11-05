@@ -12,7 +12,7 @@
 /* main-grid Styling */
 .main-grid {
   display: grid;
-  grid-template-columns: 10% 90%;
+  grid-template-columns: 10% 1fr;
 
   height: 100vh;
   width: 100vw;
@@ -29,7 +29,7 @@
 .header {
   grid-row-start: 1;
   border-bottom: 0.1px solid hsl(0, 0%, 80%);
-  padding: 0px 0px 2px 0px;
+  padding: 5px 5px 2px 10px;
 
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -47,12 +47,13 @@
 
 /* sideBar Styling */
 .sideBar-grid {
+  position: relative;
   display: grid;
   grid-template-rows: 10% 80% 10%;
   padding: 10px 0px 10px 10px;
   border-radius: 0px 10px 10px 0px;
 
-  box-shadow: 10px 0px 10px hsl(0, 0%, 90%)
+  box-shadow: 10px 0px 10px hsl(0, 0%, 90%);
 }
 
 .sideBar-main {
@@ -72,7 +73,14 @@
   background-color: lightblue;
 }
 
-
+.handle {
+  position: absolute;
+  right: 0;
+  background-color: transparent;
+  width: 2%;
+  height: 100%;
+  cursor: ew-resize;
+}
 
 .sideBar-lists {
   grid-row-start: 2;
@@ -96,6 +104,7 @@
   display: flex;
   gap: 5px;
   width: 90%;
+  align-items: center;
 }
 
 .listName-button {
@@ -140,17 +149,22 @@
   opacity: 50%;
 }
 
+.desc {
+  padding-left: 20px;
+}
+
 .inputDescription {
   grid-column-start: span 2;
   grid-row-start: 2;
-  border: none;
-  width: 100%;
-  outline: none;
-  caret-color: blue;
 
   font-size: 0.8rem;
   font-weight: 100;
-  font-style: italic;
+  border: none;
+  padding-left: 20px;
+
+  width: 100%;
+  outline: none;
+  caret-color: blue;
   color: grey;
 }
 
@@ -171,6 +185,11 @@ input::placeholder {
   caret-color: blue;
 
   opacity: 50%;
+
+  margin: 5px;
+  padding: 0;
+  line-height: normal;
+  vertical-align: middle;
 }
 
 
@@ -199,7 +218,6 @@ input::placeholder {
 
   font-size: 0.8rem;
   font-weight: 100;
-  font-style: italic;
   color: grey;
 }
 
@@ -249,7 +267,7 @@ input::placeholder {
   align-self: end;
 
   display: flex;
-  gap: 5px;  
+  gap: 5px;
 }
 
 /* Buttons customization */
@@ -353,7 +371,7 @@ input::placeholder {
   align-self: end;
 }
 
-.eddit-list-button {
+.edit-list-button {
   flex: 0 0 auto;
   aspect-ratio: 1 / 1;
 
@@ -365,15 +383,20 @@ input::placeholder {
   background-color: hsl(0, 0%, 90%);
   color: black;
   font-weight: 100;
-  font-size: 0.5rem;
+  font-size: 0.7rem;
   border: none;
   border-radius: 50%;
   width: 15px;
   height: 15px;
 }
 
-.eddit-list-button:hover {
+.edit-list-button:hover {
   background-color: lightblue;
+}
+
+
+.delete-list-button:hover {
+  background-color: red;
 }
 
 .tracker {
