@@ -4,11 +4,14 @@ import { useState, useEffect, useRef } from 'react'
 const App = () => {
   const manage = appController()  /* Loads functions, state and logic from the appController custom hook */
 
-
   return (
     manage.state.isLoading ?
       <h1 className='center'>Loading Data...</h1> :
-      <div className='main-grid' style={{ gridTemplateColumns: `clamp(10%, ${manage.state.sideWidth}%, 25%) 1fr` }}>
+      <div className='main-grid' style={manage.state.displayClassic ? {
+        gridTemplateColumns: `clamp(10%, ${manage.state.sideWidth}%, 25%) 1fr`
+      } :
+        { gridTemplateColumns: '2% 1fr' }
+      }>
         <SideBar
           userlists={manage.state.allUserLists}
           setSelectedList={manage.action.setSelectedList}
@@ -18,46 +21,93 @@ const App = () => {
           remainingTasks={manage.state.listData}
           nameUpdate={manage.action.updateNameOnServer}
           setWidth={manage.action.setSideWidth}
+          handleDisplayStyle={manage.action.setDisplayClassic}
+          displayClassic={manage.state.displayClassic}
+          handleNumberOfPages={manage.action.setNumberOfPages}
+          numberOfPages={manage.state.numberOfPages}
         />
-        <div className='page-grid'>
-          <Header
-            numberOfRemainingTasks={manage.state.unCompletedSelectedListTasks.length}
-            numberOfCompletedTasks={manage.state.completedSelectedListTasks.length}
-            pageName={manage.state.selectedList}
-            handleClick={manage.action.setShowAddNewTask}
-            setShowCompleted={manage.action.setShowCompleted}
-            showCompleted={manage.state.showCompleted}
-          />
-          <Content
-            handleClick={manage.action.setShowAddNewTask}
-            showAddState={manage.state.showAddNewTask}
-          >
-            {/* Renders list of yet to be completed items */}
-            <List
-              tasks={manage.state.unCompletedSelectedListTasks}
-              handleDelete={manage.action.deleteFromServer}
-              handleEdit={manage.action.editOnServer}
+        {manage.state.displayClassic ?
+          <Page>
+            <Header
+              pageName={manage.state.selectedList}
+              numberOfRemainingTasks={manage.state.unCompletedSelectedListTasks.length}
+              numberOfCompletedTasks={manage.state.completedSelectedListTasks.length}
+              handleClick={manage.action.setShowAddNewTask}
+              setShowCompleted={manage.action.setShowCompleted}
+              showCompleted={manage.state.showCompleted}
+            />
+            <Content
               handleClick={manage.action.setShowAddNewTask}
               showAddState={manage.state.showAddNewTask}
-            />
-            {/* After the uncompleted list, renders a list of completed items */}
-            {!manage.state.showCompleted ? "" :
+            >
+              {/* Renders list of yet to be completed items */}
               <List
-                tasks={manage.state.completedSelectedListTasks}
+                tasks={manage.state.unCompletedSelectedListTasks}
                 handleDelete={manage.action.deleteFromServer}
                 handleEdit={manage.action.editOnServer}
                 handleClick={manage.action.setShowAddNewTask}
                 showAddState={manage.state.showAddNewTask}
-              />}
-            {/* When a state is true it will show and offer to add to the list */}
+              />
+              {/* After the uncompleted list, renders a list of completed items */}
+              {!manage.state.showCompleted ? "" :
+                <List
+                  tasks={manage.state.completedSelectedListTasks}
+                  handleDelete={manage.action.deleteFromServer}
+                  handleEdit={manage.action.editOnServer}
+                  handleClick={manage.action.setShowAddNewTask}
+                  showAddState={manage.state.showAddNewTask}
+                />}
+              {/* When a state is true it will show and offer to add to the list */}
 
-            {manage.state.showAddNewTask ?
-              <AddTask
-                handleSubmit={manage.action.handleSubmit}
-              /> : ""
-            }
-          </Content>
-        </div>
+              {manage.state.showAddNewTask ?
+                <AddTask
+                  handleSubmit={manage.action.handleSubmit}
+                /> : ""
+              }
+            </Content>
+          </Page> :
+          <div className='flex'>
+            {manage.state.numberOfPages.map((page, index) => (
+              <Page>
+                <Header
+                  pageName={page.selectedList}
+                  handleClick={manage.action.setShowAddNewTask}
+                  setShowCompleted={manage.action.setShowCompleted}
+                  showCompleted={manage.state.showCompleted}
+                />
+                <Content
+                  handleClick={manage.action.setShowAddNewTask}
+                  showAddState={manage.state.showAddNewTask}
+                >
+                  {/* Renders list of yet to be completed items */}
+                  <List
+                    tasks={manage.state.unCompletedSelectedListTasks}
+                    handleDelete={manage.action.deleteFromServer}
+                    handleEdit={manage.action.editOnServer}
+                    handleClick={manage.action.setShowAddNewTask}
+                    showAddState={manage.state.showAddNewTask}
+                  />
+                  {/* After the uncompleted list, renders a list of completed items */}
+                  {!manage.state.showCompleted ? "" :
+                    <List
+                      tasks={manage.state.completedSelectedListTasks}
+                      handleDelete={manage.action.deleteFromServer}
+                      handleEdit={manage.action.editOnServer}
+                      handleClick={manage.action.setShowAddNewTask}
+                      showAddState={manage.state.showAddNewTask}
+                    />}
+                  {/* When a state is true it will show and offer to add to the list */}
+
+                  {manage.state.showAddNewTask ?
+                    <AddTask
+                      handleSubmit={manage.action.handleSubmit}
+                    /> : ""
+                  }
+                </Content>
+              </Page>
+            ))}
+          </div>
+        }
       </div>
   )
 }
@@ -71,9 +121,11 @@ function appController() {
   const [isLoading, setIsLoading] = useState(true)
 
   const [selectedList, setSelectedList] = useState("Home Page")
+  const [numberOfPages, setNumberOfPages] = useState([{ id: crypto.randomUUID(), selectedList: "Home Page" }, { id: crypto.randomUUID(), selectedList: "Home Page" }, { id: crypto.randomUUID(), selectedList: "Home Page" }])
   const [showAddNewTask, setShowAddNewTask] = useState(false)
   const [showCompleted, setShowCompleted] = useState(false)
   const [sideWidth, setSideWidth] = useState(12)
+  const [displayClassic, setDisplayClassic] = useState(true)
 
   // Generating lists from loaded data
   const selectedListTasks = isLoading ? [] : listData[selectedList].pageContent
@@ -167,7 +219,9 @@ function appController() {
       unCompletedSelectedListTasks,
       completedSelectedListTasks,
       allUserLists,
-      sideWidth
+      sideWidth,
+      numberOfPages,
+      displayClassic
     },
     action: {
       setSelectedList,
@@ -180,9 +234,19 @@ function appController() {
       saveNewListNameToServer,
       deleteListFromServer,
       updateNameOnServer,
-      setSideWidth
+      setSideWidth,
+      setDisplayClassic,
+      setNumberOfPages
     }
   }
+}
+
+function Page({ children }) {
+  return (
+    <div className='page-grid'>
+      {children}
+    </div>
+  )
 }
 
 function AddTask({ handleSubmit }) {
@@ -329,12 +393,12 @@ function ListItem({
 
 // Create a Header for the showed page
 function Header({ numberOfRemainingTasks, numberOfCompletedTasks, pageName, handleClick, showCompleted, setShowCompleted }) {
+
   return (
     <div className='header'>
       <p className='pageName'>{pageName}</p>
       <p className='numberOfRemainingTasks'>{numberOfRemainingTasks}</p>
       <div className='right-bottom-corner'>
-        <button className='add-button'>| |</button>
         <button className='add-button' onClick={() => handleClick(true)}>+</button>
       </div>
       <p className='numberOfCompletedTasks'>Completed: {numberOfCompletedTasks}  | <button className='show-hide-button' onClick={() => setShowCompleted(!showCompleted)}>{showCompleted ? "Hide" : "Show"}</button></p>
@@ -343,13 +407,26 @@ function Header({ numberOfRemainingTasks, numberOfCompletedTasks, pageName, hand
 }
 
 // Create sidebar`
-function SideBar({ userlists, setSelectedList, handleClick, saveNewListName, deleteList, remainingTasks, nameUpdate, setWidth }) {
+function SideBar({
+  userlists,
+  setSelectedList,
+  handleClick,
+  saveNewListName,
+  deleteList,
+  remainingTasks,
+  nameUpdate,
+  setWidth,
+  handleDisplayStyle,
+  displayClassic,
+  handleNumberOfPages,
+  numberOfPages
+}) {
   const [showAddList, setShowAddList] = useState(false)
   const [newListName, setNewListName] = useState("")
   const isResizing = useRef(false)
 
+  // useEffect for handling resizing of side bar, uses useRef for keeping value inbetween renders
   useEffect(() => {
-
     function onMouseMove(e) {
       if (!isResizing.current) return
       setWidth((e.clientX / window.innerWidth) * 100)
@@ -370,12 +447,12 @@ function SideBar({ userlists, setSelectedList, handleClick, saveNewListName, del
   }, [])
 
 
-  return (
-    <div className='sideBar-grid' onClick={() => handleClick(false)}>
-      <div className='sideBar-main'>    {/* // Landing page where it shows all reminders */}
-        <button className='landing-button' onClick={(e) => setSelectedList(e.target.textContent)}>Home Page</button>
+  return displayClassic ? // Depends on the state value will show either classic single page or switch into rendering multiple pages
+    (<div className='sideBar-grid' onClick={() => handleClick(false)}>   {/* Function to disable showing "Add new task" when clicked on sidebar */}
+      <div className='sideBar-main'>    {/* // Location for a "landing" button */}
+        <button className='landing-button' onClick={(e) => setSelectedList(e.target.textContent)}>Home Page</button>    {/* Button for returning to Main "landing" page */}
       </div>
-      <div className='sideBar-lists'>   {/* // Showed users lists */}
+      <div className='sideBar-lists'>   {/* // Renders user added lists */}
         <h4>Lists:</h4>
         {userlists.map((entry, index) =>
           <SideBarItem
@@ -387,25 +464,36 @@ function SideBar({ userlists, setSelectedList, handleClick, saveNewListName, del
             remainingTasks={remainingTasks}
             nameUpdate={nameUpdate}
           />)}
-        <div className='sideBar-control'>
+        <div className='sideBar-control'>   {/* Houses buttons for adding a new list or switching display mode from single to multiple pages */}
           <button
             className='edit-list-button'
             onClick={() => {
+              // Based on user input and conditions, creates a new list item and sends it to server for rendering
               if (showAddList && newListName != "") {
                 saveNewListName({ "newListName": newListName, id: crypto.randomUUID(), pageContent: [] })
                 setNewListName("")
               }
               setShowAddList(!showAddList)
-            }}>{showAddList && newListName != "" ? "+" : showAddList ? "-" : "+"}</button>
-          {showAddList ? <input autoFocus className='inputList' value={newListName} onChange={(e) => setNewListName(e.target.value)} /> : ""}
+            }}>
+            {showAddList && newListName != "" ? "+" : showAddList ? "-" : "+"}    {/* Adds simple conditioning for the button, depending on inside value to show button symbols */}
+          </button>
+          {showAddList ? <input autoFocus className='inputList' value={newListName} onChange={(e) => setNewListName(e.target.value)} /> : ""}   {/* Input field for the add new list name */}
         </div>
       </div>
+      <button className='add-button at-end' onClick={() => handleDisplayStyle(!displayClassic)}>| |</button>   {/* Button for changing the display status */}
       <div className='handle' onMouseDown={(e) => {
         e.preventDefault()
         isResizing.current = true
-        }}></div>
+      }}>
+      </div>
+    </div>)
+    :
+    <div className='side-control'>
+      <button className='add-button' onClick={() => handleDisplayStyle(!displayClassic)}>| |</button>
+      <button className='add-button' onClick={() => handleNumberOfPages([...numberOfPages, { id: crypto.randomUUID(), selectedList: "Home Page" }])}>+</button>
+      <button className='add-button' onClick={() => handleNumberOfPages([...numberOfPages].slice(0, -1))}>-</button>
     </div>
-  )
+
 }
 
 function SideBarItem({ listName, id, index, setSelectedList, deleteList, remainingTasks, nameUpdate }) {
