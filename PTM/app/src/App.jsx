@@ -14,19 +14,27 @@ const App = () => {
       }>
         <SideBar
           userlists={manage.state.allUserLists}
-          setSelectedList={manage.action.setSelectedList}
+          setSelectedList={manage.action.selectList}
           handleClick={manage.action.setShowAddNewTask}
           saveNewListName={manage.action.saveNewListNameToServer}
           deleteList={manage.action.deleteListFromServer}
-          remainingTasks={manage.state.listData}
+          remainingTasks={manage.state.listData.user}
           nameUpdate={manage.action.updateNameOnServer}
           setWidth={manage.action.setSideWidth}
           handleDisplayStyle={manage.action.setDisplayClassic}
           displayClassic={manage.state.displayClassic}
           handleNumberOfPages={manage.action.setNumberOfPages}
           numberOfPages={manage.state.numberOfPages}
+          setDataScope={manage.action.setDataScope}
+          setHome={manage.action.setHome}
         />
-        {manage.state.displayClassic ?
+        {manage.state.displayClassic ? manage.state.dataScope === "landing" ?
+          <LandingPage
+            state={manage.action.setDataScope}
+            userlists={manage.state.allUserLists}
+            setSelectedList={manage.action.selectList}
+            saveNewListName={manage.action.saveNewListNameToServer}
+          /> :
           <Page>
             <Header
               pageName={manage.state.selectedList}
@@ -35,6 +43,10 @@ const App = () => {
               handleClick={manage.action.setShowAddNewTask}
               setShowCompleted={manage.action.setShowCompleted}
               showCompleted={manage.state.showCompleted}
+              displayClassic={manage.state.displayClassic}
+              allUserLists={manage.state.allUserLists}
+              handleNumberOfPages={manage.action.setNumberOfPages}
+              numberOfPages={manage.state.numberOfPages}
             />
             <Content
               handleClick={manage.action.setShowAddNewTask}
@@ -67,48 +79,79 @@ const App = () => {
             </Content>
           </Page> :
           <div className='flex'>
-            {manage.state.numberOfPages.map((page, index) => (
-              <Page>
-                <Header
-                  pageName={page.selectedList}
-                  handleClick={manage.action.setShowAddNewTask}
-                  setShowCompleted={manage.action.setShowCompleted}
-                  showCompleted={manage.state.showCompleted}
-                />
-                <Content
-                  handleClick={manage.action.setShowAddNewTask}
-                  showAddState={manage.state.showAddNewTask}
-                >
-                  {/* Renders list of yet to be completed items */}
-                  <List
-                    tasks={manage.state.unCompletedSelectedListTasks}
-                    handleDelete={manage.action.deleteFromServer}
-                    handleEdit={manage.action.editOnServer}
-                    handleClick={manage.action.setShowAddNewTask}
-                    showAddState={manage.state.showAddNewTask}
+            {manage.state.numberOfPages.map(page => (
+              <div className='multi-page' key={page.id}>
+                {page.scope === "landing" ? (
+                  <LandingPage
+                    saveNewListName={manage.action.saveNewListNameToServer}
+                    setMainPage={manage.action.selectList}
+                    state={(newScope) => {
+                      const updatedPages = manage.state.numberOfPages.map(p =>
+                        p.id === page.id ? { ...p, scope: newScope } : p
+                      );
+                      manage.action.setNumberOfPages(updatedPages);
+                    }}
+                    userlists={manage.state.allUserLists}
+                    setSelectedList={(listName) => {
+                      const updatedPages = manage.state.numberOfPages.map(p =>
+                        p.id === page.id ? { ...p, selectedList: listName, scope: "user" } : p
+                      );
+                      manage.action.setNumberOfPages(updatedPages);
+                    }}
                   />
-                  {/* After the uncompleted list, renders a list of completed items */}
-                  {!manage.state.showCompleted ? "" :
-                    <List
-                      tasks={manage.state.completedSelectedListTasks}
-                      handleDelete={manage.action.deleteFromServer}
-                      handleEdit={manage.action.editOnServer}
+                ) : (
+                  <Page>
+                    <Header
+                      pageName={page.selectedList}
+                      numberOfRemainingTasks={manage.state.listData.user[page.selectedList].pageContent.filter(task => task.checked == false).length}
+                      numberOfCompletedTasks={manage.state.listData.user[page.selectedList].pageContent.filter(task => task.checked == true).length}
+                      handleClick={manage.action.setShowAddNewTask}
+                      setShowCompleted={manage.action.setShowCompleted}
+                      showCompleted={manage.state.showCompleted}
+                      displayClassic={manage.state.displayClassic}
+                      allUserLists={manage.state.allUserLists}
+                      handleNumberOfPages={manage.action.setNumberOfPages}
+                      numberOfPages={manage.state.numberOfPages}
+                      id={page.id}
+                      setMainPage={manage.action.selectList}
+                    />
+                    <Content
                       handleClick={manage.action.setShowAddNewTask}
                       showAddState={manage.state.showAddNewTask}
-                    />}
-                  {/* When a state is true it will show and offer to add to the list */}
+                    >
+                      {/* Renders list of yet to be completed items */}
+                      <List
+                        tasks={manage.state.listData.user[page.selectedList].pageContent.filter(task => task.checked == false)}
+                        handleDelete={manage.action.deleteFromServer}
+                        handleEdit={manage.action.editOnServer}
+                        handleClick={manage.action.setShowAddNewTask}
+                        showAddState={manage.state.showAddNewTask}
 
-                  {manage.state.showAddNewTask ?
-                    <AddTask
-                      handleSubmit={manage.action.handleSubmit}
-                    /> : ""
-                  }
-                </Content>
-              </Page>
+                      />
+                      {/* After the uncompleted list, renders a list of completed items */}
+                      {!manage.state.showCompleted ? "" :
+                        <List
+                          tasks={manage.state.listData.user[page.selectedList].pageContent.filter(task => task.checked == true)}
+                          handleDelete={manage.action.deleteFromServer}
+                          handleEdit={manage.action.editOnServer}
+                          handleClick={manage.action.setShowAddNewTask}
+                          showAddState={manage.state.showAddNewTask}
+                        />}
+                      {/* When a state is true it will show and offer to add to the list */}
+
+                      {manage.state.showAddNewTask ?
+                        <AddTask
+                          handleSubmit={manage.action.handleSubmit}
+                        /> : ""
+                      }
+                    </Content>
+                  </Page>
+                )}
+              </div>
             ))}
           </div>
         }
-      </div>
+      </div >
   )
 }
 
@@ -120,18 +163,19 @@ function appController() {
   const [listData, setListData] = useState({})
   const [isLoading, setIsLoading] = useState(true)
 
-  const [selectedList, setSelectedList] = useState("Home Page")
-  const [numberOfPages, setNumberOfPages] = useState([{ id: crypto.randomUUID(), selectedList: "Home Page" }, { id: crypto.randomUUID(), selectedList: "Home Page" }, { id: crypto.randomUUID(), selectedList: "Home Page" }])
-  const [showAddNewTask, setShowAddNewTask] = useState(false)
-  const [showCompleted, setShowCompleted] = useState(false)
-  const [sideWidth, setSideWidth] = useState(12)
-  const [displayClassic, setDisplayClassic] = useState(true)
+  const [dataScope, setDataScope] = useState("landing");
+  const [selectedList, setSelectedList] = useState("Home");
+  const [numberOfPages, setNumberOfPages] = useState([{ id: crypto.randomUUID(), selectedList: "Home", scope: "landing" }, { id: crypto.randomUUID(), selectedList: "Home", scope: "landing" }]);
+  const [showAddNewTask, setShowAddNewTask] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(false);
+  const [sideWidth, setSideWidth] = useState(12);
+  const [displayClassic, setDisplayClassic] = useState(true);
 
   // Generating lists from loaded data
-  const selectedListTasks = isLoading ? [] : listData[selectedList].pageContent
+  const selectedListTasks = !isLoading && listData[dataScope]?.[selectedList]?.pageContent ? listData[dataScope][selectedList].pageContent.sort((a,b) => a.urgency - b.urgency) : []
   const unCompletedSelectedListTasks = selectedListTasks.filter(task => task.checked == false)
   const completedSelectedListTasks = selectedListTasks.filter(task => task.checked == true)
-  const allUserLists = isLoading ? [] : Object.keys(listData).map(key => ({ "listName": key, "id": listData[key].id }))
+  const allUserLists = isLoading ? [] : Object.keys(listData.user).map(key => ({ "listName": key, "id": listData.user[key].id }))
 
   // Data from server
   async function getData() {
@@ -145,7 +189,7 @@ function appController() {
     getData();
   }, [])
 
-  // Send to server 
+  // Sends a task to add to a list to server 
   async function sendToServer(dataToSend) {
     const res = await fetch('http://localhost:8002/api', {
       method: 'POST',
@@ -208,6 +252,16 @@ function appController() {
     getData();
   }
 
+  function selectList(listName) {
+    setSelectedList(listName);
+    setDataScope("user")
+  }
+
+  function setHome() {
+    setDataScope("landing")
+    setSelectedList("Home");
+  }
+
 
   return {
     state: {
@@ -221,10 +275,11 @@ function appController() {
       allUserLists,
       sideWidth,
       numberOfPages,
-      displayClassic
+      displayClassic,
+      dataScope
     },
     action: {
-      setSelectedList,
+      selectList,
       setShowAddNewTask,
       setShowCompleted,
       sendToServer,
@@ -236,21 +291,24 @@ function appController() {
       updateNameOnServer,
       setSideWidth,
       setDisplayClassic,
-      setNumberOfPages
+      setNumberOfPages,
+      setDataScope,
+      setHome,
     }
   }
 }
 
 function Page({ children }) {
+
   return (
-    <div className='page-grid'>
+    <div className='page-grid' >
       {children}
     </div>
   )
 }
 
 function AddTask({ handleSubmit }) {
-  const [inputData, setInputData] = useState({ "title": "", "description": "", "checked": false })
+  const [inputData, setInputData] = useState({ "title": "", "description": "", "checked": false, "urgency": 0 })
 
   return (
 
@@ -290,7 +348,7 @@ function List({
   tasks,
   handleDelete,
   handleEdit,
-  handleClick,
+  handleClick
 }) {
   return (
     tasks.map(task =>
@@ -303,6 +361,7 @@ function List({
         handleDelete={() => handleDelete(task.id)}
         handleEdit={handleEdit}
         handleClick={handleClick}
+        urgency={task.urgency}
       />
     )
   )
@@ -317,15 +376,16 @@ function ListItem({
   handleDelete,
   handleEdit,
   handleClick,
+  urgency
 }) {
   const [isEditOn, setIsEditOn] = useState(false)
   const [localData, setLocalData] = useState({
     "title": titleText,
     "description": descriptionText,
     "checked": checked,
-    "id": id
+    "id": id,
+    "urgency": urgency
   })
-
   return (
     <div className={localData.checked ? 'listItem-grid completed' : 'listItem-grid'}
       onClick={(e) => e.stopPropagation()}
@@ -381,9 +441,9 @@ function ListItem({
         <div className='listItem-third-row'>
           <button className='delete-button' onClick={() => handleDelete()}></button>
           <div>
-            <button className='urgency-button-resting'>!</button>
-            <button className='urgency-button-resting'>!!</button>
-            <button className='urgency-button-clicked'>!!!</button>
+            <button className={localData.urgency === 2 ? 'urgency-button-clicked' : 'urgency-button-resting'} onClick={() => setLocalData({ ...localData, "urgency": 2 })}>!</button>
+            <button className={localData.urgency === 1 ? 'urgency-button-clicked' : 'urgency-button-resting'} onClick={() => setLocalData({ ...localData, "urgency": 1 })}>!!</button>
+            <button className={localData.urgency === 0 ? 'urgency-button-clicked' : 'urgency-button-resting'} onClick={() => setLocalData({ ...localData, "urgency": 0 })}>!!!</button>
           </div>
         </div>}
       {/* Third-row shows with Second-row second condition and houses the delete button, urgency ... */}
@@ -392,13 +452,24 @@ function ListItem({
 }
 
 // Create a Header for the showed page
-function Header({ numberOfRemainingTasks, numberOfCompletedTasks, pageName, handleClick, showCompleted, setShowCompleted }) {
+function Header({ setMainPage, numberOfRemainingTasks, numberOfCompletedTasks, pageName, handleClick, showCompleted, setShowCompleted, displayClassic, allUserLists, numberOfPages, handleNumberOfPages, id }) {
+  const [isSelecting, setIsSelecting] = useState(false)
+
+  function changeListName(newListName) {
+    const updateName = numberOfPages.map(page => page.id === id ? { ...page, selectedList: newListName } : page)
+    handleNumberOfPages(updateName)
+    setIsSelecting(false)
+  }
 
   return (
     <div className='header'>
-      <p className='pageName'>{pageName}</p>
+      <div className='dropdown'>
+        {displayClassic ? <p className='pageName'>{pageName}</p> : <button className='pageName dropdown-button' onClick={() => { setIsSelecting(!isSelecting) }}>{pageName}</button>}
+        {isSelecting ? <div className='dropmenu'>{allUserLists.map(a => <ul onClick={() => { setMainPage && setMainPage(a.listName); changeListName(a.listName) }}>{a.listName}</ul>)}</div> : ""}
+      </div>
       <p className='numberOfRemainingTasks'>{numberOfRemainingTasks}</p>
       <div className='right-bottom-corner'>
+        <button className='add-button'>=</button>
         <button className='add-button' onClick={() => handleClick(true)}>+</button>
       </div>
       <p className='numberOfCompletedTasks'>Completed: {numberOfCompletedTasks}  | <button className='show-hide-button' onClick={() => setShowCompleted(!showCompleted)}>{showCompleted ? "Hide" : "Show"}</button></p>
@@ -419,7 +490,8 @@ function SideBar({
   handleDisplayStyle,
   displayClassic,
   handleNumberOfPages,
-  numberOfPages
+  numberOfPages,
+  setHome,
 }) {
   const [showAddList, setShowAddList] = useState(false)
   const [newListName, setNewListName] = useState("")
@@ -450,12 +522,13 @@ function SideBar({
   return displayClassic ? // Depends on the state value will show either classic single page or switch into rendering multiple pages
     (<div className='sideBar-grid' onClick={() => handleClick(false)}>   {/* Function to disable showing "Add new task" when clicked on sidebar */}
       <div className='sideBar-main'>    {/* // Location for a "landing" button */}
-        <button className='landing-button' onClick={(e) => setSelectedList(e.target.textContent)}>Home Page</button>    {/* Button for returning to Main "landing" page */}
+        <button className='landing-button' onClick={(e) => { setHome() }}>Home</button>    {/* Button for returning to Main "landing" page */}
       </div>
       <div className='sideBar-lists'>   {/* // Renders user added lists */}
         <h4>Lists:</h4>
         {userlists.map((entry, index) =>
           <SideBarItem
+            key={index}
             listName={entry.listName}
             id={entry.id}
             index={index}
@@ -463,6 +536,7 @@ function SideBar({
             deleteList={deleteList}
             remainingTasks={remainingTasks}
             nameUpdate={nameUpdate}
+            setHome={setHome}
           />)}
         <div className='sideBar-control'>   {/* Houses buttons for adding a new list or switching display mode from single to multiple pages */}
           <button
@@ -480,7 +554,7 @@ function SideBar({
           {showAddList ? <input autoFocus className='inputList' value={newListName} onChange={(e) => setNewListName(e.target.value)} /> : ""}   {/* Input field for the add new list name */}
         </div>
       </div>
-      <button className='add-button at-end' onClick={() => handleDisplayStyle(!displayClassic)}>| |</button>   {/* Button for changing the display status */}
+      <button className='add-button at-end' onClick={() => { handleDisplayStyle(!displayClassic) }}>| |</button>   {/* Button for changing the display status */}
       <div className='handle' onMouseDown={(e) => {
         e.preventDefault()
         isResizing.current = true
@@ -490,13 +564,12 @@ function SideBar({
     :
     <div className='side-control'>
       <button className='add-button' onClick={() => handleDisplayStyle(!displayClassic)}>| |</button>
-      <button className='add-button' onClick={() => handleNumberOfPages([...numberOfPages, { id: crypto.randomUUID(), selectedList: "Home Page" }])}>+</button>
+      <button className='add-button' onClick={() => handleNumberOfPages([...numberOfPages, { id: crypto.randomUUID(), selectedList: "Home", scope: "landing" }])}>+</button>
       <button className='add-button' onClick={() => handleNumberOfPages([...numberOfPages].slice(0, -1))}>-</button>
     </div>
-
 }
 
-function SideBarItem({ listName, id, index, setSelectedList, deleteList, remainingTasks, nameUpdate }) {
+function SideBarItem({ listName, id, index, setSelectedList, deleteList, remainingTasks, nameUpdate, setHome }) {
   const [showMoreButtons, setShowMoreButtons] = useState(false)
   const [localSideBarData, setLocalSideBarData] = useState({ "listName": listName, "id": id })
 
@@ -510,9 +583,10 @@ function SideBarItem({ listName, id, index, setSelectedList, deleteList, remaini
             nameUpdate(listName, localSideBarData.listName, id)
           }
         }
-        }>{showMoreButtons ? '<' : '>'}</button>
+        }>{showMoreButtons ? '<' : '>'}
+      </button>
       {showMoreButtons ?
-        <button className='edit-list-button delete-list-button' onClick={() => { deleteList(id, listName); setSelectedList("Home Page") }}>x</button> : ""}
+        <button className='edit-list-button delete-list-button' onClick={() => { setHome(); deleteList(id, listName) }}>x</button> : ""}
       {showMoreButtons ?
         <input
           autoFocus
@@ -534,13 +608,39 @@ function Content({ children, handleClick, showAddState }) {
         if (e.target === e.currentTarget) {
           handleClick(!showAddState)
         }
-      }}
+      }
+      }
     >
       {children}
     </div>
   )
 }
 
+function LandingPage({ setMainPage, userlists, setSelectedList, saveNewListName }) {
+  const [addList, setAddList] = useState(false)
+  const [newListName, setNewListName] = useState("")
 
+  return (
+    <div className='landing-content-page'>
+      {userlists.map((page, index) => <button key={index} className='landing-menu-button' onClick={() => { setMainPage && setMainPage(page.listName); setSelectedList(page.listName) }} >{page.listName}</button>)}
+      {addList ? 
+      <div className='create-list'>
+  <input
+    autoFocus
+    value={newListName}
+    onChange={(e) => setNewListName(e.target.value)}
+    className='create-list-input'
+    onBlur={() => {
+      if (addList && newListName != "") {
+        saveNewListName({ "newListName": newListName, id: crypto.randomUUID(), pageContent: [] })
+        setNewListName("")
+      }
+      setAddList(false)
+    }}></input>
+    </div> : 
+    <button className='landing-menu-button' onClick={() => setAddList(true)}>Add New List</button>}
+    </div>
+  )
+}
 
 

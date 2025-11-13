@@ -40,22 +40,22 @@ app.post('/api', (req, res) => {
         return
     }
 
-    siteData[forPage].pageContent.push(dataToSave);
+    siteData.user[forPage].pageContent.push(dataToSave);
     res.json("Data recieved");
     saveData(siteData);
 })
 
 app.post('/api:newList', (req, res) => {
     const {newListName, ...restOfData} = req.body
-    siteData[newListName] = {...restOfData}
+    siteData.user[newListName] = {...restOfData}
     res.json("List added")
     saveData(siteData)
 })
 
 app.delete('/api', (req, res) => {
     const { idForDeletion, forPage } = req.body;
-    const dataDeleted = siteData[forPage].pageContent.filter(task => task.id != idForDeletion);
-    siteData[forPage].pageContent = dataDeleted;
+    const dataDeleted = siteData.user[forPage].pageContent.filter(task => task.id != idForDeletion);
+    siteData.user[forPage].pageContent = dataDeleted;
 
     res.json("Data deleted");
     saveData(siteData);
@@ -64,8 +64,8 @@ app.delete('/api', (req, res) => {
 
 app.delete('/api:deleteList', (req, res) => {
     const { idForDeletion, listName } = req.body
-    if (siteData[listName].id === idForDeletion) {
-        delete siteData[listName]
+    if (siteData.user[listName].id === idForDeletion) {
+        delete siteData.user[listName]
 
         res.json("List deleted")
         saveData(siteData)
@@ -74,8 +74,8 @@ app.delete('/api:deleteList', (req, res) => {
 
 app.put('/api', (req, res) => {
     const { forPage, ...subtituteData } = req.body;
-    const replacement = siteData[forPage].pageContent.map(task => task.id === subtituteData.id ? subtituteData : task)
-    siteData[forPage].pageContent = replacement
+    const replacement = siteData.user[forPage].pageContent.map(task => task.id === subtituteData.id ? subtituteData : task)
+    siteData.user[forPage].pageContent = replacement
 
     res.json("Data updated")
     saveData(siteData)
@@ -83,9 +83,9 @@ app.put('/api', (req, res) => {
 
 app.put('/api:editName', (req, res) => {
     const {oldName, newName, id} = req.body
-    if (siteData[oldName].id === id) {
-        siteData[newName] = siteData[oldName];
-        delete siteData[oldName];
+    if (siteData.user[oldName].id === id) {
+        siteData.user[newName] = siteData.user[oldName];
+        delete siteData.user[oldName];
     }
 
     res.json("List Name Updated")
