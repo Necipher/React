@@ -1,0 +1,264 @@
+/* Universal Organization */
+:root {
+  --primary-color: hsl(7, 99%, 70%);
+  --secondary-complementary-color: hsl(30, 99%, 70%);
+  --linework-color: hsl(0, 0%, 90%);
+  --shadow-color: hsl(0, 0%, 80%);
+  --button-color: white;
+
+  --main-title-size: 3rem;
+  --secondary-title-size: 2rem;
+  --sub-title-size: 1.5rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 100;
+  box-sizing: border-box;
+}
+
+/* Buttons */
+.round-button {
+  height: 20px;
+  aspect-ratio: 1/1;
+
+  border: none;
+  border-radius: 50%;
+  background-color: var(--button-color);
+  box-shadow: 1px 1px 2px var(--shadow-color);
+
+  color: var(--linework-color);
+}
+
+.round-elongated-button {
+  height: 20px;
+  padding: 0px 20px;
+
+  border: none;
+  border-radius: 20px;
+  background-color: var(--button-color);
+  box-shadow: 1px 1px 2px var(--shadow-color);
+
+  color: var(--linework-color);
+  font-weight: 300;
+}
+
+.round-button:hover, .round-elongated-button:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.favorite {
+  position: relative;
+  display: inline-block;
+}
+
+.favorite::before {
+  content: '\2606';
+  position: absolute;
+  left: 18%;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--linework-color);
+}
+
+.favorite:hover::before {
+  content: '\2605';
+  color: var(--secondary-complementary-color)
+}
+
+.favorite.active::before {
+  content: '\2605';
+  color: var(--secondary-complementary-color)
+}
+
+.menu-button {
+  padding: 5%;
+
+  width: 100%;
+  height: 33%;
+
+  border: none;
+  text-align: center;
+  background-color: transparent;
+}
+
+.menu-button:hover {
+  background-color: var(--primary-color);
+}
+
+/* Page Organization */
+.main {
+  padding: 20px;
+  gap: 30px;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: start;
+}
+
+/* CardItem Organization */
+.CardItem {
+  display: flex;
+  flex-direction: column;
+
+  border: 1px solid var(--linework-color);
+  border-radius: 30px;
+  box-shadow: 3px 3px 5px var(--shadow-color);
+  overflow: hidden;
+
+  width: 100%;
+}
+
+.CardItem-firstRow {
+  display: flex;
+
+  height: 6vw;
+  border-bottom: 1px solid var(--linework-color);
+
+  padding: 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.CardItem-secondRow {
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--linework-color);
+  transition: height 0.5s ease, opacity 0.5s ease, padding 0.3s ease;
+}
+
+.CardItem-secondRow.open {
+  height: 20vw;
+  opacity: 1;
+  padding: 20px;
+}
+
+.CardItem-thirdRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  height: 1.5vw;
+  padding: 0px 20px 0px 20px;
+}
+
+.Ingredients {
+  padding: 0px 0px 10px 0px;
+}
+
+.photo-title {
+  width: 19%;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  box-shadow: 1px 1px 2px var(--shadow-color);
+}
+
+.title-main {
+  font-size: var(--secondary-title-size);
+  font-weight: 500;
+}
+
+.title-section {
+  font-size: var(--sub-title-size);
+  font-weight: 200;
+}
+
+.items-section {
+  padding-left: 20px;
+  list-style-type: circle;
+}
+
+.Main-title {
+  margin: 20px 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--main-title-size);
+  font-weight: 800;
+}
+
+.Hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 10px;
+
+  background-color: var(--primary-color);
+
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 50px;
+  box-shadow: 3px 3px 5px var(--shadow-color);
+}
+
+
+/* Top Bar Organization */
+
+.drop-down-menu-button {
+  position: relative;
+  aspect-ratio: 1/1;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  height: 80%;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: inset 3px 3px 5px var(--shadow-color);
+}
+
+.drop-down-menu-button:hover {
+  box-shadow: inset 3px 3px 5px hsl(7, 99%, 60%);
+  background-color: var(--secondary-complementary-color);
+}
+
+.drop-menu {
+  display: flex;
+  flex-direction: column;
+
+  position: absolute;
+  right: 0%;
+  top:2.5vw;
+
+  padding: 5px;
+
+  height: 0vw;
+  width: 0vw;
+  opacity: 0;
+
+  border: 1px solid var(--linework-color);
+  background-color: white;
+  transition: height 0.5s ease, opacity 0.7s ease;
+
+  font-weight: 500;
+}
+
+.drop-menu.open {
+  height: 10vw;
+  width: 10vw;
+  opacity: 1;
+}
+
+/* Input fields */
+.search-bar {
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-items: center;
+
+  width: 15%;
+  height: 70%;
+  border-radius: 10px;
+  box-shadow: inset 3px 3px 5px var(--shadow-color);
+
+  border: var(--linework-color);
+  padding: 5px
+}
