@@ -47,10 +47,14 @@ const App = () => {
               allUserLists={manage.state.allUserLists}
               handleNumberOfPages={manage.action.setNumberOfPages}
               numberOfPages={manage.state.numberOfPages}
+              setSortUrgency={manage.action.setSortUrgency}
+              sortUrgency={manage.state.sortUrgency}
             />
             <Content
               handleClick={manage.action.setShowAddNewTask}
               showAddState={manage.state.showAddNewTask}
+              setSelectedList={manage.action.selectList}
+              pageName={manage.state.selectedList}
             >
               {/* Renders list of yet to be completed items */}
               <List
@@ -59,6 +63,9 @@ const App = () => {
                 handleEdit={manage.action.editOnServer}
                 handleClick={manage.action.setShowAddNewTask}
                 showAddState={manage.state.showAddNewTask}
+                handleReorder={manage.action.handleReorder}
+                pageName={manage.state.selectedList}
+                setSelectedList={manage.action.selectList}
               />
               {/* After the uncompleted list, renders a list of completed items */}
               {!manage.state.showCompleted ? "" :
@@ -68,6 +75,9 @@ const App = () => {
                   handleEdit={manage.action.editOnServer}
                   handleClick={manage.action.setShowAddNewTask}
                   showAddState={manage.state.showAddNewTask}
+                  handleReorder={manage.action.handleReorder}
+                  pageName={manage.state.selectedList}
+                  setSelectedList={manage.action.selectList}
                 />}
               {/* When a state is true it will show and offer to add to the list */}
 
@@ -114,10 +124,14 @@ const App = () => {
                       numberOfPages={manage.state.numberOfPages}
                       id={page.id}
                       setMainPage={manage.action.selectList}
+                      setSortUrgency={manage.action.setSortUrgency}
+                      sortUrgency={manage.state.sortUrgency}
                     />
                     <Content
                       handleClick={manage.action.setShowAddNewTask}
                       showAddState={manage.state.showAddNewTask}
+                      setSelectedList={manage.action.selectList}
+                      pageName={page.selectedList}
                     >
                       {/* Renders list of yet to be completed items */}
                       <List
@@ -126,7 +140,10 @@ const App = () => {
                         handleEdit={manage.action.editOnServer}
                         handleClick={manage.action.setShowAddNewTask}
                         showAddState={manage.state.showAddNewTask}
-
+                        handleReorder={manage.action.handleReorder}
+                        pageName={manage.state.selectedList}
+                        changeToPageName={page.selectedList}
+                        setSelectedList={manage.action.selectList}
                       />
                       {/* After the uncompleted list, renders a list of completed items */}
                       {!manage.state.showCompleted ? "" :
@@ -136,6 +153,10 @@ const App = () => {
                           handleEdit={manage.action.editOnServer}
                           handleClick={manage.action.setShowAddNewTask}
                           showAddState={manage.state.showAddNewTask}
+                          handleReorder={manage.action.handleReorder}
+                          pageName={manage.state.selectedList}
+                          changeToPageName={page.selectedList}
+                          setSelectedList={manage.action.selectList}
                         />}
                       {/* When a state is true it will show and offer to add to the list */}
 
@@ -170,10 +191,12 @@ function appController() {
   const [showCompleted, setShowCompleted] = useState(false);
   const [sideWidth, setSideWidth] = useState(12);
   const [displayClassic, setDisplayClassic] = useState(true);
+  const [sortUrgency, setSortUrgency] = useState(false)
 
   // Generating lists from loaded data
-  const selectedListTasks = !isLoading && listData[dataScope]?.[selectedList]?.pageContent ? listData[dataScope][selectedList].pageContent.sort((a,b) => a.urgency - b.urgency) : []
-  const unCompletedSelectedListTasks = selectedListTasks.filter(task => task.checked == false)
+  const selectedListTasks = !isLoading && listData[dataScope]?.[selectedList]?.pageContent ? listData[dataScope][selectedList].pageContent : []
+  const ListTasksSortedByUrgency = [...selectedListTasks].sort((a, b) => a.urgency - b.urgency)
+  const unCompletedSelectedListTasks = sortUrgency ? ListTasksSortedByUrgency.filter(task => task.checked == false) : selectedListTasks.filter(task => task.checked == false)
   const completedSelectedListTasks = selectedListTasks.filter(task => task.checked == true)
   const allUserLists = isLoading ? [] : Object.keys(listData.user).map(key => ({ "listName": key, "id": listData.user[key].id }))
 
@@ -249,6 +272,16 @@ function appController() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ "oldName": oldName, "newName": newName, "id": id })
     })
+
+    getData();
+  }
+
+  async function handleReorder(reorderedList, currentPage) {
+    const req = await fetch('http://localhost:8002/api/reorderList', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ "newData": reorderedList, "forPage": currentPage })
+    })
     getData();
   }
 
@@ -276,7 +309,8 @@ function appController() {
       sideWidth,
       numberOfPages,
       displayClassic,
-      dataScope
+      dataScope,
+      sortUrgency
     },
     action: {
       selectList,
@@ -294,6 +328,8 @@ function appController() {
       setNumberOfPages,
       setDataScope,
       setHome,
+      handleReorder,
+      setSortUrgency
     }
   }
 }
@@ -348,11 +384,27 @@ function List({
   tasks,
   handleDelete,
   handleEdit,
-  handleClick
+  handleClick,
+  handleReorder,
+  pageName,
+  changeToPageName,
+  setSelectedList
 }) {
+
+  const dragRef = useRef(null)
+  const dragOverRef = useRef(null)
+
+  function switchPlaces() {
+    const reordered = [...tasks]
+    const draggedItem = reordered.splice(dragRef.current, 1)[0];
+    reordered.splice(dragOverRef.current, 0, draggedItem);
+    handleReorder(reordered, pageName)
+  }
+
   return (
-    tasks.map(task =>
+    tasks.map((task, index) =>
       <ListItem
+        index={index}
         key={task.id}
         titleText={task.title}
         descriptionText={task.description}
@@ -362,6 +414,11 @@ function List({
         handleEdit={handleEdit}
         handleClick={handleClick}
         urgency={task.urgency}
+        dragRef={dragRef}
+        dragOverRef={dragOverRef}
+        switchPlaces={switchPlaces}
+        changeToPageName={changeToPageName}
+        setSelectedList={setSelectedList}
       />
     )
   )
@@ -376,7 +433,13 @@ function ListItem({
   handleDelete,
   handleEdit,
   handleClick,
-  urgency
+  urgency,
+  switchPlaces,
+  index,
+  dragRef,
+  dragOverRef,
+  changeToPageName,
+  setSelectedList
 }) {
   const [isEditOn, setIsEditOn] = useState(false)
   const [localData, setLocalData] = useState({
@@ -386,23 +449,26 @@ function ListItem({
     "id": id,
     "urgency": urgency
   })
-  return (
-    <div className={localData.checked ? 'listItem-grid completed' : 'listItem-grid'}
-      onClick={(e) => e.stopPropagation()}
-      tabIndex="-1"
-      onFocus={(e) => {
-        if (e.target.name !== 'complete-button') {
-          setIsEditOn(true);
-        }
-        handleClick(false)
 
-      }}
+
+  return (
+    <div draggable className={localData.checked ? 'listItem-grid completed' : 'listItem-grid'}
+      tabIndex='-1'
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget)) {
           setIsEditOn(false);
           handleEdit(localData);
         }
       }}
+      onMouseDown={() => {
+        if (changeToPageName) {
+          setSelectedList(changeToPageName)
+        }
+      }}
+      onDragStart={() => dragRef.current = index}
+      onDragEnter={() => dragOverRef.current = index}
+      onDragEnd={() => switchPlaces()}
+      onDragOver={e => e.preventDefault()}
     >   {/* Grid wrapper for CSS organization */}
       <div className='listItem-main-row'>   {/* Main-row, always vissible with quick access to editing its content and checked status*/}
         <input
@@ -417,7 +483,21 @@ function ListItem({
           }}
         />
         {!isEditOn ?
-          <p>{localData.title}</p> :
+          <p onClick={(e) => {
+            e.stopPropagation();
+          }}
+            tabIndex="-1"
+            onFocus={(e) => {
+              if (changeToPageName) {
+                setSelectedList(changeToPageName)
+              }
+              if (e.target.name !== 'complete-button') {
+                setIsEditOn(true);
+              }
+              handleClick(false)
+
+            }}
+          >{localData.title}</p> :
           <input
             autoFocus
             type='text'
@@ -452,7 +532,22 @@ function ListItem({
 }
 
 // Create a Header for the showed page
-function Header({ setMainPage, numberOfRemainingTasks, numberOfCompletedTasks, pageName, handleClick, showCompleted, setShowCompleted, displayClassic, allUserLists, numberOfPages, handleNumberOfPages, id }) {
+function Header({
+  setMainPage,
+  numberOfRemainingTasks,
+  numberOfCompletedTasks,
+  pageName,
+  handleClick,
+  showCompleted,
+  setShowCompleted,
+  displayClassic,
+  allUserLists,
+  numberOfPages,
+  handleNumberOfPages,
+  id,
+  setSortUrgency,
+  sortUrgency
+}) {
   const [isSelecting, setIsSelecting] = useState(false)
 
   function changeListName(newListName) {
@@ -469,7 +564,7 @@ function Header({ setMainPage, numberOfRemainingTasks, numberOfCompletedTasks, p
       </div>
       <p className='numberOfRemainingTasks'>{numberOfRemainingTasks}</p>
       <div className='right-bottom-corner'>
-        <button className='add-button'>=</button>
+        <button className={!sortUrgency ? 'add-button' : 'add-button true'} onClick={() => setSortUrgency(!sortUrgency)}>U</button>
         <button className='add-button' onClick={() => handleClick(true)}>+</button>
       </div>
       <p className='numberOfCompletedTasks'>Completed: {numberOfCompletedTasks}  | <button className='show-hide-button' onClick={() => setShowCompleted(!showCompleted)}>{showCompleted ? "Hide" : "Show"}</button></p>
@@ -523,6 +618,7 @@ function SideBar({
     (<div className='sideBar-grid' onClick={() => handleClick(false)}>   {/* Function to disable showing "Add new task" when clicked on sidebar */}
       <div className='sideBar-main'>    {/* // Location for a "landing" button */}
         <button className='landing-button' onClick={(e) => { setHome() }}>Home</button>    {/* Button for returning to Main "landing" page */}
+
       </div>
       <div className='sideBar-lists'>   {/* // Renders user added lists */}
         <h4>Lists:</h4>
@@ -576,7 +672,7 @@ function SideBarItem({ listName, id, index, setSelectedList, deleteList, remaini
   return (
     <div className='list'>
       <button
-        className='edit-list-button'
+        className={showMoreButtons ? 'edit-list-button true' : 'edit-list-button'}
         onClick={() => {
           setShowMoreButtons(!showMoreButtons)
           if (showMoreButtons && localSideBarData.listName && listName !== localSideBarData.listName) {
@@ -601,15 +697,23 @@ function SideBarItem({ listName, id, index, setSelectedList, deleteList, remaini
   )
 }
 
-function Content({ children, handleClick, showAddState }) {
+function Content({ children, handleClick, showAddState, setSelectedList, pageName }) {
+  const [focused, setFocused] = useState(false)
   return (
-    <div className='content'
+    <div
+      tabIndex='-1'
+      className='content'
       onClick={(e) => {
         if (e.target === e.currentTarget) {
-          handleClick(!showAddState)
+          setSelectedList(pageName)
+          if (focused) {
+            handleClick(!showAddState)
+          }
         }
       }
       }
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
     >
       {children}
     </div>
@@ -623,22 +727,22 @@ function LandingPage({ setMainPage, userlists, setSelectedList, saveNewListName 
   return (
     <div className='landing-content-page'>
       {userlists.map((page, index) => <button key={index} className='landing-menu-button' onClick={() => { setMainPage && setMainPage(page.listName); setSelectedList(page.listName) }} >{page.listName}</button>)}
-      {addList ? 
-      <div className='create-list'>
-  <input
-    autoFocus
-    value={newListName}
-    onChange={(e) => setNewListName(e.target.value)}
-    className='create-list-input'
-    onBlur={() => {
-      if (addList && newListName != "") {
-        saveNewListName({ "newListName": newListName, id: crypto.randomUUID(), pageContent: [] })
-        setNewListName("")
-      }
-      setAddList(false)
-    }}></input>
-    </div> : 
-    <button className='landing-menu-button' onClick={() => setAddList(true)}>Add New List</button>}
+      {addList ?
+        <div className='create-list'>
+          <input
+            autoFocus
+            value={newListName}
+            onChange={(e) => setNewListName(e.target.value)}
+            className='create-list-input'
+            onBlur={() => {
+              if (addList && newListName != "") {
+                saveNewListName({ "newListName": newListName, id: crypto.randomUUID(), pageContent: [] })
+                setNewListName("")
+              }
+              setAddList(false)
+            }}></input>
+        </div> :
+        <button className='landing-menu-button' onClick={() => setAddList(true)}><p>Add New List</p></button>}
     </div>
   )
 }

@@ -83,12 +83,20 @@ app.put('/api', (req, res) => {
 
 app.put('/api:editName', (req, res) => {
     const {oldName, newName, id} = req.body
-    if (siteData.user[oldName].id === id) {
-        siteData.user[newName] = siteData.user[oldName];
-        delete siteData.user[oldName];
-    }
-
+        if (siteData.user[oldName]?.id === id) {
+            siteData.user[newName] = siteData.user[oldName];
+            delete siteData.user[oldName];
+        }
+        
     res.json("List Name Updated")
+    saveData(siteData)  
+})
+
+app.put('/api/reorderList', (req, res) => {
+    const {newData, forPage} = req.body
+    siteData.user[forPage].pageContent = newData
+    res.json('updated') 
+    saveData(siteData)
 })
 
 
