@@ -13,9 +13,8 @@ function loadData() {
     if (fs.existsSync(DATABASE)) {
         return JSON.parse(fs.readFileSync(DATABASE, "utf8"));
     } else {
-        console.log("Failed data load")
+        console.log("Failed initialize data");
     }
-
 }
 
 function saveData(dataToSave) {
@@ -24,8 +23,19 @@ function saveData(dataToSave) {
 
 const siteData = loadData();
 
+app.get('/api/fetchData', (req, res) => {
+    res.json(siteData);
+})
+
+app.put('/api/sendToServer', (req, res) => {
+    const { favorite, id } = req.body;
+    siteData.library = siteData.library.map(recipe => recipe.idMeal === id ? {...recipe, favorite} : recipe)
+    saveData(siteData)
+    res.json('Data updated')
+})
 
 const PORT = 8000;
 app.listen(PORT, () => {
     console.log(`Server started at http://localhost:${PORT}`)
 })
+
