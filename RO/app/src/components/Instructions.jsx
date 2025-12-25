@@ -15,7 +15,6 @@ const Instructions = ({ recipe }) => {
           <SectionList title={"Instructions:"} items={recipe.strInstructions} style="instructions-instructions" />
         </section>
       </section>
-
     </div>
   )
 }

@@ -6,6 +6,8 @@ function useAppState(initialData = null) {
   const [siteData, setSiteData] = useState(initialData || {});
   const [isLoading, setIsLoading] = useState(!initialData);
 
+  const [showOverlay, setShowOverlay] = useState(false)
+
   const [displayCards, setDisplayCards] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -36,12 +38,14 @@ function useAppState(initialData = null) {
       siteData,
       isLoading,
       displayCards,
-      searchQuery
+      searchQuery,
+      showOverlay
 
     },
     changeState: {
       setDisplayCards,
-      setSearchQuery
+      setSearchQuery,
+      setShowOverlay
     },
     action: {
       toggleDisplayFunction,

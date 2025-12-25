@@ -8,6 +8,7 @@ function TopBar({ state, changeState }) {
     <div className='Hero'>
       <SearchBar state={state} changeState={changeState} />
       <button className='top-bar-button'>{"\u2605"}</button>
+      <button className='top-bar-button' onClick={(e) => {e.preventDefault(); changeState.setShowOverlay(!state.showOverlay)}}>+</button>
       <DropDownMenu />
     </div>
   )
