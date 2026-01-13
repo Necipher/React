@@ -5,14 +5,14 @@ import useAppState from '../hooks/useAppState'
 import AddRecipe from '../components/AddRecipe'
 
 const RootLayout = () => {
-    const siteData = useLoaderData();
-    const {state, changeState, action} = useAppState(siteData)
+    const { siteData, paginated } = useLoaderData();
+    const { state, changeState, action } = useAppState(siteData)
 
     return (
         <div>
-            <TopBar state={state} changeState={changeState}/>
-            {state.showOverlay && <AddRecipe changeState={changeState}/>}
-            <Outlet context={{ siteData, state, changeState, action }} />
+            <TopBar state={state} changeState={changeState} />
+            {state.showOverlay && <AddRecipe changeState={changeState} action={action} />}
+            <Outlet context={{ siteData, paginated, state, changeState, action }} />
         </div>
     )
 }

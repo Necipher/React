@@ -22,14 +22,7 @@ function Carousel({ data }) {
           />
         ))}
 
-        {data.library.map(recipe => (
-          <CardItem
-            key={`dup-${recipe.id}`}
-            data={recipe}
-            state={{ displayCards: true }}
-            onClickOverride={() => handleCarouselClick(recipe.idMeal)}
-          />
-        ))}
+
       </div>
     </div>
   )

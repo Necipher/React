@@ -12,9 +12,19 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
-    loader: async () => {
-      const req = await fetch('http://localhost:8000/api/fetchData');
-      return req.json();
+    loader: async ({ request }) => {
+      const url = new URL(request.url);
+      const page = url.searchParams.get('page') || 1
+
+      const [dataRes, libraryRes] = await Promise.all([
+        fetch('http://localhost:8000/api/fetchData'),
+        fetch(`http://localhost:8000/api/library?page=${page}`)
+      ]);
+
+      return {
+        siteData: await dataRes.json(),
+        paginated: await libraryRes.json()
+      }
     },
     children: [
       {

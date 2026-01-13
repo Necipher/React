@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Cards from './Cards'
 
 
-function Content({ state, data, action }) {
+function Content({ state, paginatedData, data, action }) {
 
   if (!data) {
     return (
@@ -15,14 +15,15 @@ function Content({ state, data, action }) {
     <div className={state.displayCards ? 'main-vertical' : 'main-horizontal'}>
       <Cards
         action={action}
-        data={data.library}
+        data={data.user}
         state={state}
       />
       <Cards
         action={action}
-        data={data.user}
+        data={paginatedData.library}
         state={state}
       />
+
     </div>
   )
 }

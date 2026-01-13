@@ -17,6 +17,8 @@ function loadData() {
     }
 }
 
+const ITEMS_PER_PAGE = 30
+
 function saveData(dataToSave) {
     fs.writeFileSync(DATABASE, JSON.stringify(dataToSave, null, 2));
 }
@@ -32,6 +34,35 @@ app.put('/api/sendToServer', (req, res) => {
     siteData.library = siteData.library.map(recipe => recipe.idMeal === id ? {...recipe, favorite} : recipe)
     saveData(siteData)
     res.json('Data updated')
+})
+
+app.post('/api/addRecipe', (req, res) => {
+    const { data } = req.body;
+    siteData.user.push(data)
+
+    saveData(siteData)
+    res.json('Data uploaded')
+})
+
+app.get('/api/library', (req, res) => {
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit || ITEMS_PER_PAGE)
+
+    const startIndex = (page - 1) * limit
+    const endIndex = page * limit
+
+    const paginatedLibrary = siteData.library.slice(startIndex, endIndex);
+
+    const totalItems = siteData.library.length
+    const totalPages = Math.ceil(totalItems / limit)    
+
+    res.json({
+        library: paginatedLibrary,
+        currentPage: page,
+        totalPages: totalPages,
+        totalItems: totalItems,
+        itemsPerPage: limit
+    })
 })
 
 const PORT = 8000;
