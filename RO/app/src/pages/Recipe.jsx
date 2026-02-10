@@ -7,8 +7,9 @@ import ScrollToTop from '../components/ScrollToTop'
 const Recipe = () => {
     const { siteData } = useOutletContext()
     const { id } = useParams()
-    const chosenRecipe = siteData?.library?.find(recipe => recipe.idMeal == id)
+    const chosenRecipe = siteData?.library?.find(recipe => recipe.idMeal == id) || siteData?.user?.find(recipe => recipe.idMeal == id)
 
+    console.log(chosenRecipe)
     return (
         <div>
             <ScrollToTop />

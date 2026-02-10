@@ -1,7 +1,9 @@
 import { useState } from "react"
+import { useRevalidator } from "react-router-dom"
 
 const AddRecipe = ({ changeState, action }) => {
-    const [newRecipe, setNewRecipe] = useState({ "strMeal": "", "favorite": false, "ingredients": [{ "ingredient": "", "measurement": "" }], "instructions": [""] })
+    const revalidator = useRevalidator();
+    const [newRecipe, setNewRecipe] = useState({ "strMeal": "", "favorite": false, "ingredients": [{ "ingredient": "", "measurement": "" }], "strInstructions": [""] })
     const [newImage, setNewImage] = useState(null);
     const [imageFile, setImageFile] = useState(null);
 
@@ -15,16 +17,17 @@ const AddRecipe = ({ changeState, action }) => {
     async function handleSubmit(e) {
         e.preventDefault();
 
-        if (newRecipe.strMeal !== "" && newRecipe.ingredients[0].ingredient !== "" && newRecipe.instructions[0] !== "") {
+        if (newRecipe.strMeal !== "" && newRecipe.ingredients[0].ingredient !== "" && newRecipe.strInstructions[0] !== "") {
             const recipeToAdd = { "idMeal": crypto.randomUUID(), ...newRecipe }
             if (imageFile) {
                 const base64Image = await convertToBase64(imageFile);
                 recipeToAdd.strMealThumb = base64Image;
             }
 
-            action.addRecipeToServer(recipeToAdd)
+            await action.addRecipeToServer(recipeToAdd)
+            revalidator.revalidate()
 
-            setNewRecipe({ "strMeal": "", "ingredients": [{ "ingredient": "", "measurement": "" }], "instructions": [""] })
+            setNewRecipe({ "strMeal": "", "ingredients": [{ "ingredient": "", "measurement": "" }], "strInstructions": [""] })
             setNewImage(null)
             setImageFile(null)
             changeState.setShowOverlay(false)
@@ -99,17 +102,17 @@ const AddRecipe = ({ changeState, action }) => {
 
                 <section className="add-instructions">
                     <h3>Instructions:</h3>
-                    {newRecipe.instructions.map(
+                    {newRecipe.strInstructions.map(
                         (instruction, index) =>
                             <input key={index} type="text" value={instruction} onChange={(e) => {
-                                const updatedInstructions = [...newRecipe.instructions];
+                                const updatedInstructions = [...newRecipe.strInstructions];
                                 updatedInstructions[index] = e.target.value;
-                                setNewRecipe(prev => ({ ...prev, "instructions": updatedInstructions }))
+                                setNewRecipe(prev => ({ ...prev, "strInstructions": updatedInstructions }))
                             }
                             } />)}
                     <button onClick={(e) => {
                         e.preventDefault();
-                        setNewRecipe(prev => ({ ...prev, "instructions": [...prev.instructions, ""] }));
+                        setNewRecipe(prev => ({ ...prev, "strInstructions": [...prev.strInstructions, ""] }));
                     }}>Add Instruction</button>
                 </section>
 

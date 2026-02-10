@@ -17,11 +17,13 @@ function Content({ state, paginatedData, data, action }) {
         action={action}
         data={data.user}
         state={state}
+        user={true}
       />
       <Cards
         action={action}
         data={paginatedData.library}
         state={state}
+        user={false}
       />
 
     </div>

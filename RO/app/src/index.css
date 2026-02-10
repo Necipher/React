@@ -195,6 +195,7 @@ body {
 .cardItem.vertical {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .cardItem.vertical .firstRow {

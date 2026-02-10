@@ -4,7 +4,8 @@ import CardItem from './CardItem'
 
 
 // Cards
-function Cards({ data, state, action }) {
+function Cards({ data, state, action, user }) {
+  console.log(data[0])
   return (
     data.map((recipe, index) =>
       <CardItem
@@ -12,6 +13,7 @@ function Cards({ data, state, action }) {
         state={state}
         key={recipe.id}
         data={recipe}
+        user={user}
       />
     )
   )
