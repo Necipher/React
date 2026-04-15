@@ -9,9 +9,12 @@ function useAppState(initialData = null) {
   const [currentPage, setCurrentPage] = useState(1)
 
   const [showOverlay, setShowOverlay] = useState(false)
+  const [showEdit, setShowEdit] = useState(false)
+  const [dataForEdit, setDataForEdit] = useState(false)
 
   const [displayCards, setDisplayCards] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+
 
   const toggleDisplayFunction = () => setDisplayCards(!displayCards)
 
@@ -22,22 +25,35 @@ function useAppState(initialData = null) {
     setIsLoading(false);
   }
 
-  async function loadPaginatedLibrary() {
-    const req = await fetch('http://localhost:8000/api/library');
-    const data = await req.json();
-
-  }
-
   useEffect(() => {
     loadData();
   }, [])
 
-  async function updateRecipe(favorite, id) {
+  async function updateRecipe(toData, favorite, id) {
     const req = await fetch('http://localhost:8000/api/sendToServer', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ favorite, id })
+      body: JSON.stringify({ toData, favorite, id })
     })
+    loadData()
+  }
+
+  async function changeRecipe(data, id) {
+    const req = await fetch('http://localhost:8000/api/changeRecipe', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data, id })
+    })
+    loadData()
+  }
+
+  async function deleteRecipe(id) {
+    const req = await fetch('http://localhost:8000/api/deleteRecipe', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    })
+    loadData()
   }
 
   async function addRecipeToServer(data) {
@@ -49,24 +65,81 @@ function useAppState(initialData = null) {
     loadData()
   }
 
+  function levenshtein(str1, str2) {
+    const y = str1.length
+    const x = str2.length
+
+    const matrix = Array.from({ length: x + 1 }, () => Array(y + 1).fill(0))
+
+    for (let i = 0; i <= x; i++) matrix[i][0] = i;
+    for (let j = 0; j <= y; j++) matrix[0][j] = j;
+
+    for (let e = 1; e <= x; e++) {
+      for (let k = 1; k <= y; k++) {
+        if (str1[e - 1] === str2[k - 1]) {
+          matrix[e][k] = matrix[e - 1][k - 1]
+        } else {
+          matrix[e][k] = 1 + Math.min(
+            matrix[e - 1][k],
+            matrix[e][k - 1],
+            matrix[e - 1][k - 1]
+          )
+        }
+      }
+    }
+
+    return matrix[x][y]
+  }
+
+  function fuzzySearch(query, items, treshold = 2) {
+    if (!query) return items.map(item => ({ item, distance: 0, score: 1 }));
+
+    query = query.toLowerCase();
+
+    return items
+      .map(item => {
+        const target = item.strMeal.toLowerCase();
+        const words = target.split(/\s+/);
+
+        const distances = [levenshtein(query, target), ...words.map(word => levenshtein(query, word))];
+
+        const substringMatch = target.includes(query);
+
+        const distance = substringMatch ? 0 : Math.min(...distances);
+        const score = 1 - distance / Math.max(query.length, target.length);
+        return { item, distance, score }
+      })
+      .filter(result => result.distance <= treshold)
+      .sort((a, b) => a.distance - b.distance);
+  }
+
+
+
   return ({
     state: {
       siteData,
       isLoading,
       displayCards,
-      searchQuery,
-      showOverlay
+      searchResults,
+      showOverlay,
+      dataForEdit,
+      showEdit
 
     },
     changeState: {
       setDisplayCards,
-      setSearchQuery,
-      setShowOverlay
+      setSearchResults,
+      setShowOverlay,
+      setDataForEdit,
+      setShowEdit
     },
     action: {
       toggleDisplayFunction,
       updateRecipe,
-      addRecipeToServer
+      addRecipeToServer,
+      changeRecipe,
+      deleteRecipe,
+      fuzzySearch
     }
   })
 }

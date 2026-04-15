@@ -1,31 +1,36 @@
 
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 
-function SearchBar({ state, changeState }) {
-  const [searchBarData, setSearchBarData] = useState('')
+function SearchBar({ state, changeState, action }) {
+  const navigate = useNavigate()
+  const [searchBarData, setSearchBarData] = useState("")
+  const database = [
+    ...(state?.siteData?.user),
+    ...(state?.siteData?.library)
+  ]
 
-  useEffect(() => {
-    if (!state?.siteData?.library) return
+  function handleSearch(e) {
+    const query = e.target.value
+    setSearchBarData(query)
 
-    let found = []
-
-    if (searchBarData.trim() !== '') {
-      found = state.siteData.library.filter(item =>
-        item.strMeal.toLowerCase().includes(searchBarData.toLowerCase())
-      )
+    if (query === "") {
+      changeState.setSearchResults([])
+    } else {
+      changeState.setSearchResults(action.fuzzySearch(query, database))
     }
 
-    changeState.setSearchQuery(found)
-  }, [searchBarData, state?.siteData?.library])
 
+  }
 
   return (
     <input
       placeholder='Search...'
       className='search-bar'
       value={searchBarData}
-      onChange={(e) => setSearchBarData(e.target.value)}
+      onChange={handleSearch}
+      onKeyDown={(e) => e.key === "Enter" ? e.target.value === "" ? navigate('/') : navigate('/home/search') : null}
     />
   )
 }

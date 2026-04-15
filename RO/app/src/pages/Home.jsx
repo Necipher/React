@@ -19,6 +19,7 @@ const Home = () => {
         action={action}
         data={state.isLoading ? null : state.siteData}
         paginatedData={paginated}
+        changeState={changeState}
       />
       <PageButtons
         pages={paginated.totalPages}

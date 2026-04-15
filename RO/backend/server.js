@@ -30,8 +30,8 @@ app.get('/api/fetchData', (req, res) => {
 })
 
 app.put('/api/sendToServer', (req, res) => {
-    const { favorite, id } = req.body;
-    siteData.library = siteData.library.map(recipe => recipe.idMeal === id ? {...recipe, favorite} : recipe)
+    const { toData, favorite, id } = req.body;
+    siteData[toData] = siteData[toData].map(recipe => recipe.idMeal === id ? { ...recipe, favorite } : recipe)
     saveData(siteData)
     res.json('Data updated')
 })
@@ -44,6 +44,20 @@ app.post('/api/addRecipe', (req, res) => {
     res.json('Data uploaded')
 })
 
+app.put('/api/changeRecipe', (req, res) => {
+    const { data, id } = req.body;
+    siteData.user = siteData.user.map(recipe => recipe.idMeal === id ? { ...data } : recipe)
+    saveData(siteData)
+    res.json('Recipe Changed')
+})
+
+app.delete('/api/deleteRecipe', (req, res) => {
+    const { id } = req.body;
+    siteData.user = siteData.user.filter(recipe => recipe.idMeal !== id)
+    saveData(siteData)
+    res.json('Recipe Deleted')
+})
+
 app.get('/api/library', (req, res) => {
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit || ITEMS_PER_PAGE)
@@ -54,7 +68,7 @@ app.get('/api/library', (req, res) => {
     const paginatedLibrary = siteData.library.slice(startIndex, endIndex);
 
     const totalItems = siteData.library.length
-    const totalPages = Math.ceil(totalItems / limit)    
+    const totalPages = Math.ceil(totalItems / limit)
 
     res.json({
         library: paginatedLibrary,

@@ -155,6 +155,19 @@ body {
   background-color: var(--primary-color);
 }
 
+.button-group {
+  display: flex;
+  margin-left: auto;
+
+  justify-content: start;
+  align-items: center;
+
+  gap: 10px;
+
+  height: 100%;
+  width: auto;
+}
+
 /* Page Organization */
 .main-vertical {
   column-gap: 2vw;
@@ -178,7 +191,7 @@ body {
   justify-content: center;
 
   transition: all 0.5s ease;
-  
+
   padding-bottom: var(--bar-size);
 }
 
@@ -350,9 +363,11 @@ body {
 
 .Hero {
   display: flex;
-  justify-content: space-between;
+  justify-content: start;
   align-items: center;
   padding: 0px 10px;
+
+  gap: 20px;
 
   background-color: var(--primary-color);
 
@@ -383,7 +398,43 @@ body {
   cursor: default;
 }
 
-.drop-down-menu-button:hover {
+.home-button {
+  aspect-ratio: 1/1;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+
+  height: 80%;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: inset 3px 3px 5px var(--shadow-color);
+
+  cursor: default;
+}
+
+.drop-down-menu-button:hover,
+.home-button:hover {
+  box-shadow: inset 3px 3px 5px hsl(7, 99%, 60%);
+  background-color: var(--secondary-complementary-color);
+}
+
+.drop-down-search-button {
+  position: relative;
+  text-decoration: none;
+
+  display: flex;
+  justify-content: start;
+  align-items: start;
+
+  height: 80%;
+  background-color: white;
+
+  cursor: default;
+}
+
+.drop-down-search-button:hover {
   box-shadow: inset 3px 3px 5px hsl(7, 99%, 60%);
   background-color: var(--secondary-complementary-color);
 }
@@ -407,23 +458,47 @@ body {
   font-weight: 500;
 }
 
+.drop-results {
+  display: flex;
+  flex-direction: column;
+
+  position: absolute;
+  left: 0%;
+  top: var(--bar-size);
+
+  height: 0vw;
+  width: 0vw;
+  opacity: 0;
+
+  border: 1px solid var(--linework-color);
+  background-color: white;
+  transition: height 0.3s ease, opacity 0.5s ease;
+
+  font-weight: 500;
+}
+
 .drop-menu.open {
   height: 10vw;
   width: 10vw;
   opacity: 1;
 }
 
+.drop-results.open {
+  height: 15.5vw;
+  width: 10vw;
+  opacity: 1;
+}
+
 /* Input fields */
 .search-bar {
-
   background-color: white;
   display: flex;
   align-items: center;
   font-size: 1rem;
 
 
-  height: var(--bar-buttons-height);
-  width: 2%;
+  height: 80%;
+  width: 40px;
   border-radius: 50%;
   box-shadow: inset 3px 3px 5px var(--shadow-color);
 

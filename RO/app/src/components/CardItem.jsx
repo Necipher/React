@@ -5,11 +5,9 @@ import { Link, useRevalidator } from 'react-router-dom';
 
 
 // Card item - that houses the recepie and ingredients
-function CardItem({ data, state, action, onClickOverride, user }) {
+function CardItem({ data, state, action, onClickOverride, user, changeState }) {
   const revalidator = useRevalidator();
-  const [newRecipe, setNewRecipe] = useState({ "strMeal": "", "favorite": false, "ingredients": [{ "ingredient": "", "measurement": "" }], "strInstructions": [""] })
-  const [newImage, setNewImage] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
+  const isFromUser = user ? "user" : "library"
 
   const [expanded, setExpanded] = useState(false)
   const [localCardData, setLocalCardData] = useState({ 'favorite': data.favorite })
@@ -53,49 +51,31 @@ function CardItem({ data, state, action, onClickOverride, user }) {
         className={`thirdRow`}
       >    {/* Section for functionality buttons */}
         <section
-        style={{ display: "flex"}}
+          style={{ display: "flex" }}
         >
           <Link to={`/recipe/${data.idMeal}`}>
             <button className='round-elongated-button'>Show Instructions</button>
           </Link>
           {/* For a user added recipe, renders a edit button that when hovered over will change into quick edit or full view edit */}
           {user &&
-            <div
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
+            <button
+              className='round-elongated-button'
+              style={{ marginLeft: "10px" }}
+              onClick={() => {
+                changeState.setDataForEdit(data)
+                changeState.setShowOverlay(false)
+                changeState.setShowEdit(true)
+              }}
             >
-
-              {!isHovered ?
-                <button
-                  className='round-elongated-button'
-                  style={{ marginLeft: "10px" }}
-                >
-                  Edit Recipe
-                </button> :
-                <>
-                  <button
-                    className='round-elongated-button'
-                    style={{ marginLeft: "10px" }}
-                  >
-                    Quick
-                  </button>
-                  <button
-                    className='round-elongated-button'
-                    style={{ marginLeft: "10px" }}
-                  >
-                    Full
-                  </button>
-                </>
-              }
-
-            </div>
+              Edit Recipe
+            </button>
           }
         </section>
         <section>
           <button onClick={() => {
             const newFavorite = !localCardData.favorite
             setLocalCardData({ ...localCardData, 'favorite': newFavorite })
-            action.updateRecipe(newFavorite, data.idMeal)
+            action.updateRecipe(isFromUser, newFavorite, data.idMeal)
           }} className={`round-button favorite-button ${localCardData.favorite && 'active'}`}></button>
         </section>
       </footer>

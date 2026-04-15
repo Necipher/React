@@ -17,10 +17,9 @@ function Banner({ state, action, data }) {
         className='change-display-button'
         onClick={action.toggleDisplayFunction}
       >
-        {state.displayCards ? "True" : "False"}
+        {state.displayCards ? "Pockets" : "Cards"}
       </button>
-
-      <p className='Main-title'>Big Beautiful Name</p>
+      <p className='Main-title'>Site Name</p>
 
       {state.displayCards &&
         <Carousel

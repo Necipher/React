@@ -7,6 +7,9 @@ import RootLayout from './layouts/RootLayout.jsx';
 import Home from './pages/Home.jsx'
 import Recipe from './pages/Recipe.jsx'
 import Ingredients from './pages/Ingredients.jsx';
+import MyRecipes from './pages/MyRecipes.jsx';
+import Favorites from './pages/Favorites.jsx';
+import Searched from './pages/Searched.jsx';
 
 const router = createBrowserRouter([
   {
@@ -32,12 +35,25 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
+        path: "/home/search",
+        element: <Searched />
+      }
+      ,
+      {
         path: "/recipe/:id",
         element: <Recipe />
       },
       {
         path: "/ingredients",
         element: <Ingredients />
+      },
+      {
+        path: "/myRecipes",
+        element: <MyRecipes />
+      },
+      {
+        path: "/favorites",
+        element: <Favorites />
       }
     ]
   },

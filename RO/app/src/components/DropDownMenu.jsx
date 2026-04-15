@@ -8,19 +8,24 @@ function DropDownMenu() {
   const options = [
     { label: 'Home', path: '/' },
     { label: 'Ingredients', path: '/ingredients' },
-    { label: 'Something Else', path: '/' }
+    { label: 'My Recipes', path: '/myRecipes' }
   ]
 
   return (
-    <>
+    <div
+      style={{ display: "contents", outline:  "none" }}
+      autoFocus
+      tabIndex="-1"
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+          setShowOptions(false)
+        }
+      }}
+    >
       <div
         className='drop-down-menu-button'
         onClick={() => setShowOptions(!showOptions)}
-        onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget)) {
-            setShowOptions(false)
-          }
-        }}
+
       >
         | | |
       </div>
@@ -29,11 +34,13 @@ function DropDownMenu() {
           <Link
             key={index}
             className='menu-button'
-            to={option.path}>
+            to={option.path}
+            onClick={() => setShowOptions(false)}
+          >
             {option.label}
           </Link>)}
       </div>
-    </>
+    </div>
   )
 }
 

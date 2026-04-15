@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Cards from './Cards'
 
 
-function Content({ state, paginatedData, data, action }) {
+function Content({ state, paginatedData, data, action, changeState }) {
 
   if (!data) {
     return (
@@ -18,6 +18,7 @@ function Content({ state, paginatedData, data, action }) {
         data={data.user}
         state={state}
         user={true}
+        changeState={changeState}
       />
       <Cards
         action={action}
