@@ -13,19 +13,18 @@ function DropDownMenu() {
 
   return (
     <div
-      style={{ display: "contents", outline:  "none" }}
-      autoFocus
-      tabIndex="-1"
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget)) {
-          setShowOptions(false)
-        }
-      }}
+      style={{ display: "contents", outline: "none" }}
     >
       <div
         className='drop-down-menu-button'
         onClick={() => setShowOptions(!showOptions)}
-
+        autoFocus
+        tabIndex="-1"
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget)) {
+            setShowOptions(false)
+          }
+        }}
       >
         | | |
       </div>
@@ -35,6 +34,7 @@ function DropDownMenu() {
             key={index}
             className='menu-button'
             to={option.path}
+            onMouseDown={(e) => e.preventDefault()} 
             onClick={() => setShowOptions(false)}
           >
             {option.label}

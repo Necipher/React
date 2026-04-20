@@ -1,15 +1,16 @@
-
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 
 function SearchBar({ state, changeState, action }) {
-  const navigate = useNavigate()
-  const [searchBarData, setSearchBarData] = useState("")
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchBarData, setSearchBarData] = useState("");
   const database = [
     ...(state?.siteData?.user),
     ...(state?.siteData?.library)
-  ]
+  ];
 
   function handleSearch(e) {
     const query = e.target.value
@@ -18,10 +19,23 @@ function SearchBar({ state, changeState, action }) {
     if (query === "") {
       changeState.setSearchResults([])
     } else {
-      changeState.setSearchResults(action.fuzzySearch(query, database))
+      if (location.pathname === '/ingredients') {
+        changeState.setSearchResults(action.fuzzySearchIngs(query, database))
+      } else {
+        changeState.setSearchResults(action.fuzzySearch(query, database))
+      }
     }
+  }
 
+  function handleKeyDown(e) {
+    if (e.key !== "Enter") return
 
+    if (e.key === "Enter" && e.target.value !== "") {
+      navigate('/home/search');
+      changeState.setTempSearchResults(state.searchResults)
+    } else {
+      navigate('/')
+    }
   }
 
   return (
@@ -30,7 +44,7 @@ function SearchBar({ state, changeState, action }) {
       className='search-bar'
       value={searchBarData}
       onChange={handleSearch}
-      onKeyDown={(e) => e.key === "Enter" ? e.target.value === "" ? navigate('/') : navigate('/home/search') : null}
+      onKeyDown={handleKeyDown}
     />
   )
 }

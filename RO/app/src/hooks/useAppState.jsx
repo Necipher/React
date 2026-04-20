@@ -14,6 +14,7 @@ function useAppState(initialData = null) {
 
   const [displayCards, setDisplayCards] = useState(true);
   const [searchResults, setSearchResults] = useState([]);
+  const [tempSearchResults, setTempSearchResults] = useState([]);
 
 
   const toggleDisplayFunction = () => setDisplayCards(!displayCards)
@@ -91,7 +92,7 @@ function useAppState(initialData = null) {
     return matrix[x][y]
   }
 
-  function fuzzySearch(query, items, treshold = 2) {
+  function fuzzySearch(query, items, threshold = 2) {
     if (!query) return items.map(item => ({ item, distance: 0, score: 1 }));
 
     query = query.toLowerCase();
@@ -109,9 +110,33 @@ function useAppState(initialData = null) {
         const score = 1 - distance / Math.max(query.length, target.length);
         return { item, distance, score }
       })
-      .filter(result => result.distance <= treshold)
+      .filter(result => result.distance <= threshold)
       .sort((a, b) => a.distance - b.distance);
   }
+
+  function fuzzySearchIngs(query, items, threshold = 2) {
+    if (!query) return items.map(item => ({ item, distance: 0, score: 1 }));
+
+    query = query.toLowerCase();
+
+    return items
+      .map(item => {
+        const ingredientTargets = item.ingredients.map(a => a.ingredient.toLowerCase());
+
+        const distances = ingredientTargets.flatMap(target => {
+          const words = target.split(/\s+/);
+          if (target.includes(query)) return [0];
+          return [levenshtein(query, target), ...words.map(word => levenshtein(query, word))];
+        });
+
+        const distance = Math.min(...distances);
+        const score = 1 - distance / Math.max(query.length, ...ingredientTargets.map(t => t.length));
+        return { item, distance, score };
+      })
+      .filter(result => result.distance <= threshold)
+      .sort((a, b) => a.distance - b.distance);
+  }
+
 
 
 
@@ -121,6 +146,7 @@ function useAppState(initialData = null) {
       isLoading,
       displayCards,
       searchResults,
+      tempSearchResults,
       showOverlay,
       dataForEdit,
       showEdit
@@ -129,6 +155,7 @@ function useAppState(initialData = null) {
     changeState: {
       setDisplayCards,
       setSearchResults,
+      setTempSearchResults,
       setShowOverlay,
       setDataForEdit,
       setShowEdit
@@ -139,7 +166,8 @@ function useAppState(initialData = null) {
       addRecipeToServer,
       changeRecipe,
       deleteRecipe,
-      fuzzySearch
+      fuzzySearch,
+      fuzzySearchIngs
     }
   })
 }

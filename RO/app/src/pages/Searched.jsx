@@ -18,7 +18,7 @@ const Searched = () => {
             <div className={state.displayCards ? 'main-vertical' : 'main-horizontal'} style={{ marginTop: "50px" }}>
                 <Cards
                     action={action}
-                    data={state.searchResults.map(item => item.item)}
+                    data={state.tempSearchResults.map(item => item.item)}
                     state={state}
                     user={true}
                     changeState={changeState}

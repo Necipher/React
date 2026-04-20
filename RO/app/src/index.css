@@ -450,6 +450,7 @@ body {
   height: 0vw;
   width: 0vw;
   opacity: 0;
+  overflow: hidden;
 
   border: 1px solid var(--linework-color);
   background-color: white;
@@ -469,6 +470,7 @@ body {
   height: 0vw;
   width: 0vw;
   opacity: 0;
+  overflow: hidden;
 
   border: 1px solid var(--linework-color);
   background-color: white;
@@ -843,3 +845,16 @@ body {
 .page-numbers button:hover {
   color: var(--secondary-complementary-color);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -3,9 +3,10 @@ import { useRevalidator } from "react-router-dom"
 
 const AddRecipe = ({ changeState, action }) => {
     const revalidator = useRevalidator();
-    const [newRecipe, setNewRecipe] = useState({ "strMeal": "", "favorite": false, "ingredients": [{ "ingredient": "", "measurement": "" }], "strInstructions": [""] })
+    const [newRecipe, setNewRecipe] = useState({ "strMeal": "", "strYoutube": "", "favorite": false, "ingredients": [{ "ingredient": "", "measurement": "" }], "strInstructions": [""] })
     const [newImage, setNewImage] = useState(null);
     const [imageFile, setImageFile] = useState(null);
+    const [galleryImages, setGalleryImages] = useState([]) /* create a function for this  */
 
 
     function uploadImage(e) {
@@ -45,6 +46,17 @@ const AddRecipe = ({ changeState, action }) => {
         });
     }
 
+    function validateYoutube(e) {
+        const value = e.target.value;
+
+        const isValid =
+            value.includes("youtube.com") || value.includes("youtu.be");
+
+        if (!isValid && value !== "") {
+            setNewRecipe(prev => ({ ...prev, "strYoutube": "" }))
+            alert("Please enter a valid YouTube link");
+        }
+    }
     return (
         <div
             tabIndex="-1"
@@ -75,11 +87,24 @@ const AddRecipe = ({ changeState, action }) => {
                     <input autoFocus type="text" value={newRecipe.strMeal} onChange={(e) => setNewRecipe(prev => ({ ...prev, "strMeal": e.target.value }))} />
                 </section>
 
+                <section>
+                    <h3>(optional)Youtube video link:</h3>
+                    <input style={{ fontSize: "0.7rem", width: "120%", position: "relative", left: "-10%" }}
+                        type="text" value={newRecipe.strYoutube}
+                        onChange={(e) => setNewRecipe(prev => ({ ...prev, "strYoutube": e.target.value }))}
+                        onBlur={validateYoutube}
+                    />
+                </section>
+
                 <section className="add-ingredients">
                     <h3>Ingredients:</h3>
                     {newRecipe.ingredients.map(
                         (item, index) =>
                             <section key={index} className="ingrs">
+                                <button style={{ marginRight: "10px" }} onClick={(e) => {
+                                    e.preventDefault();
+                                    setNewRecipe(prev => ({ ...prev, "ingredients": prev.ingredients.filter((_, i) => i !== index) }))
+                                }} >X</button>
                                 <input className="ingr" type="text" value={item.ingredient} onChange={(e) => {
                                     const updatedIngredients = [...newRecipe.ingredients];
                                     updatedIngredients[index].ingredient = e.target.value
@@ -104,12 +129,19 @@ const AddRecipe = ({ changeState, action }) => {
                     <h3>Instructions:</h3>
                     {newRecipe.strInstructions.map(
                         (instruction, index) =>
-                            <input key={index} type="text" value={instruction} onChange={(e) => {
-                                const updatedInstructions = [...newRecipe.strInstructions];
-                                updatedInstructions[index] = e.target.value;
-                                setNewRecipe(prev => ({ ...prev, "strInstructions": updatedInstructions }))
-                            }
-                            } />)}
+                            <div>
+                                <button style={{ marginRight: "10px" }} onClick={(e) => {
+                                    e.preventDefault();
+                                    setNewRecipe(prev => ({ ...prev, "strInstructions": prev.strInstructions.filter((_, i) => i !== index) }))
+                                }}>X</button>
+                                <input key={index} type="text" value={instruction} onChange={(e) => {
+                                    const updatedInstructions = [...newRecipe.strInstructions];
+                                    updatedInstructions[index] = e.target.value;
+                                    setNewRecipe(prev => ({ ...prev, "strInstructions": updatedInstructions }))
+                                }
+                                } />
+                            </div>
+                    )}
                     <button onClick={(e) => {
                         e.preventDefault();
                         setNewRecipe(prev => ({ ...prev, "strInstructions": [...prev.strInstructions, ""] }));
