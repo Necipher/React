@@ -1,0 +1,11 @@
+.layout {
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+    gap: 20px;
+}
+
+.layout h2:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}

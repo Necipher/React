@@ -1,0 +1,11 @@
+.layout {
+    padding-left: 15px;
+    border: 1px solid var(--border);
+    width: 90%;
+    aspect-ratio: 14/1;
+
+    background-color: white;
+
+    border-radius: 10px;
+    font-size: 0.9rem;
+}

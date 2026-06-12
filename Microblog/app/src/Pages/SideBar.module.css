@@ -1,0 +1,25 @@
+.gridLayout {
+    padding: 20px 0px 0px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+
+}
+
+.logo {
+    width: 10%;
+    aspect-ratio: 1/1;
+    color: black;
+
+    filter: invert(0%) sepia(100%) saturate(5000%) hue-rotate(200deg);
+}
+
+.siteName {
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.identification {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}

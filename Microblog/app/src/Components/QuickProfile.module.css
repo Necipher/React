@@ -1,0 +1,83 @@
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: 3fr 1fr;
+
+    border: 1px solid var(--border);
+    background-color: white;
+    border-radius: 20px;
+
+    min-height: 15vh;
+    width: 90%;
+}
+
+/* Cage Spaces */
+.pictureCage {
+    margin: 5px;
+    grid-column: 1/2;
+    grid-row: 1/2;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.indetificatorCage {
+    grid-column: 2/3;
+    grid-row: 1/2;
+}
+
+.statusCage {
+    padding: 5px;
+    grid-column: 1/4;
+    grid-row: 2/3;
+
+    align-items: center;
+    justify-items: center;
+
+    border-top: 0.5px solid var(--border);
+}
+
+
+/* Components */
+.profilePic {
+    border-radius: 50%;
+    width: 90%;
+    min-width: 80px;
+    aspect-ratio: 1/1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    object-fit: cover;
+}
+
+.nickname {
+    font-size: 1rem;
+    padding-top: 5px;
+}
+
+.handle {
+    font-size: 0.6rem;
+    color: var(--text-3);
+}
+
+.bio {
+    padding-top: 3px;
+    font-size: 0.9rem;
+    color: var(--text-2);
+}
+
+.option {
+    margin: 5px;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    border: none;
+}
+
+.status{
+    font-size: 0.7rem;
+    color: var(--text-2);
+}

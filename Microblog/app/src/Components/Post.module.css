@@ -1,0 +1,94 @@
+.postLayout {
+    width: 100%;
+    height: auto;
+
+    display: grid;
+    grid-template-columns: 1fr 14fr;
+    width: 100%;
+    border: 0.5px solid var(--border);
+}
+
+.postLayout:hover {
+    background-color: var(--surface-2);
+    cursor: pointer;
+}
+
+.profilePicture {
+    margin: 10px;
+
+    grid-column: 1/2;
+    grid-row: 1/3;
+
+    width: 2vw;
+    min-width: 40px;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+
+    object-fit: cover;
+}
+
+.profileName {
+    display: flex;
+    padding-top: 10px;
+    align-items: end;
+
+    grid-column: 2/3;
+    grid-row: 1/2;
+
+    min-height: 20px;
+
+    gap: 5px;
+}
+
+.nickname {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--text-1);
+}
+
+.handle {
+    font-size: 0.8rem;
+    color: var(--text-3);
+}
+
+.post {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    padding-right: 10px;
+
+    grid-column: 2/3;
+    grid-row: 2/3;
+
+    font-size: 0.8rem;
+    font-weight: 100;
+
+    gap: 20px;
+}
+
+.operations {
+    display: flex;
+    justify-content: space-between;
+
+    padding-right: 20px;
+
+    grid-column: 2/3;
+    grid-row: 3/4;
+}
+
+.operationButton {
+    border: none;
+    background: none;
+    color: var(--text-3);
+}
+
+.operationButton:hover {
+    color: red;
+    cursor: pointer;
+}
+
+.photo {
+    object-fit: cover;
+    width: 40%;
+    height: auto;
+}

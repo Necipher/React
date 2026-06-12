@@ -1,0 +1,15 @@
+.layout {
+    padding-top: var(--topbar-height);
+    display: flex;
+    flex-direction: column;
+    width: 100%; 
+}
+
+
+/* The other layout is in TopBar.module.css */
+/* .layout2 {
+    display: flex;
+    flex-direction: column;
+    width: 100%; 
+} */
+
