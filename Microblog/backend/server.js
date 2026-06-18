@@ -92,40 +92,41 @@ app.post('/logout', async (req, res) => {
     res.clearCookie('refreshToken')
 })
 
-// Preparation for addition of a refresh token
-// Refresh logic for a new refresh token
+// Refresh logic for automatic new refresh token
 app.post('/refresh', async (req, res) => {
     // Takes the token from cookie, if there is none, sends back a 401
     const token = req.cookies.refreshToken;
     if (!token) {
-        return res.status(401).json({ 'message': 'No token' })
+        return res.status(401).json({ 'message': 'No token, no access' });
     }
-
     // Decodes the cookie with secret and checks it if it exist in database
     const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
-
-    console.log(decoded)
-    const user = await pool.query('SELECT id FROM users WHERE public_id = $1', [decoded.payload])
+    const { public_id } = decoded.payload
+    // Checks existance of user and obtains id which is needed for searching in token table
+    const user = await pool.query('SELECT * FROM users WHERE public_id = $1', [decoded.payload]);
     if (!user.rows[0]) {
         return res.status(401).json({ 'message': 'User does not exist' })
     }
-    const result = await pool.query('SELECT * FROM tokens WHERE id = $1 AND token = $2', [user.rows[0].id, token]);
-
+    // Checks if the token is in the database
+    const result = await pool.query('SELECT * FROM tokens WHERE token = $1 AND id = $2', [token, user.rows[0].id]);
     if (!result.rows[0]) {
-        return res.status(403).json({ 'message': 'Refresh Token Revoken' })
+        return res.status(403).json({ 'message': 'Token access revoken' })
     }
+    // Checks if the token is still valid timewise
+    if (new Date(result.rows[0].expires) < new Date()) {
+        await pool.query('DELETE FROM tokens WHERE token = $1', [result.rows[0].token]);
+        return res.status(403).json({ 'message': 'Refresh token expired' });
+    }
+    // If ok issue new accessToken and refreshes the refreshToken for better security
+    const newAccessToken = generateAccessToken(public_id);
+    const newRefreshToken = generateRefreshToken(public_id);
+    const expiresAt = new Date(Date.now + 7 * 24 * 60 * 60 * 1000);
 
-    // If ok issue new access token and refresh the refreshToken for better security
-    const accessToken = generateAccessToken(decoded.payload)
+    await pool.query('DELETE FROM tokens WHERE token = $1', [result.rows[0].token])
+    await pool.query('INSERT INTO tokens (user_id, token, expires) VALUES ($1, $2, $3)', [public_id, newRefreshToken, expiresAt]);
 
-    const newRefreshToken = generateRefreshToken(decoded.payload);
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
-    await pool.query('DELETE FROM tokens WHERE id = $1', [user.rows[0].id]);
-    await pool.query('INSERT INTO tokens (user_id, token, expires) VALUES ($1, $2, $3)', [user.rows[0].id, newRefreshToken, expiresAt]);
-
-    res.cookie('refreshToken', newRefreshToken, { httpOnly: true })
-    res.json({ 'token': accessToken })
+    res.cookie('refreshToken', newRefreshToken, { httpOnly: true });
+    res.json({ newAccessToken })
 })
 
 app.listen(PORT, () => console.log(`Server started at port ${PORT}`))
