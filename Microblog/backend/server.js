@@ -14,6 +14,7 @@ const protect = require('./middleware/authMiddleware.js');
 app.use(express.json());
 app.use(cors());
 
+// Register function
 app.post('/register', async (req, res) => {
     // Takes in all the data from front end
     const { username, first_name, last_name, email, gender, password } = req.body;
@@ -49,6 +50,7 @@ app.post('/register', async (req, res) => {
     })
 })
 
+// Login function
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -80,9 +82,18 @@ app.get('/profile', protect, async (req, res) => {
     res.json(result.rows)
 })
 
+// Logout function
+app.post('/logout', async (req, res) => {
+    const token = req.cookies.refreshToken;
+
+    if (token) {
+        await pool.query('DELETE FROM tokens WHERE token = $1', [token]);
+    }
+    res.clearCookie('refreshToken')
+})
+
 // Preparation for addition of a refresh token
 // Refresh logic for a new refresh token
-
 app.post('/refresh', async (req, res) => {
     // Takes the token from cookie, if there is none, sends back a 401
     const token = req.cookies.refreshToken;
