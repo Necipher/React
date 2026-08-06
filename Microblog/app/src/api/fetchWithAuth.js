@@ -26,7 +26,43 @@ const fetchWithAuth = async (url, options = {}) => {
             'Content-type': 'application/json',
             'authorization': `Bearer ${accessToken}`
         }
-    })
-// condition for trying to refresh
-// condition for failing
+    });
+
+    if (res.status === 401) {
+        const refreshed = await tryRefresh();
+
+
+        if (refreshed) {
+            return fetch(url, {
+                ...options,
+                credentials: 'include',
+                headers: {
+                    ...options.headers,
+                    'content-type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`
+                }
+            });
+        } else {
+            window.location.href = '/login'
+        }
+    }
+
+    return res;
 }
+
+const tryRefresh = async () => {
+    try {
+        const res = await fetch('http://localhost:5000/auth/refresh', {
+            method: 'POST',
+            credentials: 'include'
+        });
+        if (res.ok) {
+            const data = await res.json();
+            setAccessToken(data.accessToken);
+            return true;
+        }
+        return false
+    } catch {
+        return false;
+    }
+};

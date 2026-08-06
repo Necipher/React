@@ -30,7 +30,7 @@ app.post('/register', async (req, res) => {
     }
 
     // If user doesnt exist encrpyts password and then adds user to the database
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(10); 
     const hashedPassword = await bcrypt.hash(password, salt);
     const result = await pool.query('INSERT INTO users (username, first_name, last_name, email, gender, created_at, password, role) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, public_id', [username, first_name, last_name, email, gender, 'now()', hashedPassword, 'user']);
     const { id, public_id } = result.rows[0];
@@ -102,7 +102,7 @@ app.post('/refresh', async (req, res) => {
     // Decodes the cookie with secret and checks it if it exist in database
     const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
     const { public_id } = decoded.payload
-    // Checks existance of user and obtains id which is needed for searching in token table
+
     const user = await pool.query('SELECT * FROM users WHERE public_id = $1', [decoded.payload]);
     if (!user.rows[0]) {
         return res.status(401).json({ 'message': 'User does not exist' })
@@ -112,7 +112,7 @@ app.post('/refresh', async (req, res) => {
     if (!result.rows[0]) {
         return res.status(403).json({ 'message': 'Token access revoken' })
     }
-    // Checks if the token is still valid timewise
+    // Checks if the token is still valid 
     if (new Date(result.rows[0].expires) < new Date()) {
         await pool.query('DELETE FROM tokens WHERE token = $1', [result.rows[0].token]);
         return res.status(403).json({ 'message': 'Refresh token expired' });
@@ -120,7 +120,7 @@ app.post('/refresh', async (req, res) => {
     // If ok issue new accessToken and refreshes the refreshToken for better security
     const newAccessToken = generateAccessToken(public_id);
     const newRefreshToken = generateRefreshToken(public_id);
-    const expiresAt = new Date(Date.now + 7 * 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     await pool.query('DELETE FROM tokens WHERE token = $1', [result.rows[0].token])
     await pool.query('INSERT INTO tokens (user_id, token, expires) VALUES ($1, $2, $3)', [public_id, newRefreshToken, expiresAt]);
