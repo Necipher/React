@@ -1,0 +1,24 @@
+.layout {
+    display: flex;
+
+    justify-content: space-between;
+    padding: 0 10px;
+
+    width: var(--mid-column-width);
+    min-height: calc(var(--topbar-height)/2);
+    position: fixed;
+    top: 0px;
+    border-bottom: 1px solid var(--border);
+
+    background-color: white;
+}
+
+.layout button {
+    background: none;
+    border: none;
+    font-size: 0.7rem;
+}
+
+button:hover {
+    background-color: lightgrey;
+}

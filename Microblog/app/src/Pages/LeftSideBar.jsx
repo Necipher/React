@@ -1,9 +1,9 @@
 import React from 'react'
-import style from './SideBar.module.css'
+import style from './LeftSideBar.module.css'
 import logo from '../assets/logo.png'
 import MenuSelection from '../Components/MenuSelection'
 
-const SideBar = () => {
+const LeftSideBar = () => {
 
 
     return (
@@ -21,7 +21,7 @@ const SideBar = () => {
     )
 }
 
-export default SideBar
+export default LeftSideBar
 
 
 

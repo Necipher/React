@@ -1,0 +1,7 @@
+.layout {
+    padding-top: calc(var(--topbar-height)/2);
+    width: var(--mid-column-width);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}

@@ -1,8 +1,8 @@
 .layout {
     padding-top: var(--topbar-height);
+    width: var(--mid-column-width);
     display: flex;
     flex-direction: column;
-    width: 100%; 
 }
 
 

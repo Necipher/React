@@ -3,19 +3,21 @@ const setAccessToken = (token) => accessToken = token;
 const getAccessToken = () => accessToken
 
 const tryRefresh = async () => {
-
-    const res = await fetch('http://localhost/5004/auth/refresh', {
-        method: 'POST',
-        credentials: 'include'
-    });
-
-    if (res.ok) {
-        const data = await res.json();
-        setAccessToken(data.accessToken);
-        return true
+    try {
+        const res = await fetch('http://localhost:5000/auth/refresh', {
+            method: 'POST',
+            credentials: 'include'
+        });
+        if (res.ok) {
+            const data = await res.json();
+            setAccessToken(data.accessToken);
+            return true;
+        }
+        return false
+    } catch {
+        return false;
     }
-    return false
-}
+};
 
 const fetchWithAuth = async (url, options = {}) => {
     const res = await fetch(url, {
@@ -49,20 +51,3 @@ const fetchWithAuth = async (url, options = {}) => {
 
     return res;
 }
-
-const tryRefresh = async () => {
-    try {
-        const res = await fetch('http://localhost:5000/auth/refresh', {
-            method: 'POST',
-            credentials: 'include'
-        });
-        if (res.ok) {
-            const data = await res.json();
-            setAccessToken(data.accessToken);
-            return true;
-        }
-        return false
-    } catch {
-        return false;
-    }
-};

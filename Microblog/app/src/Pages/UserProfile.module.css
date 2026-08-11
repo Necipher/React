@@ -1,0 +1,106 @@
+.layout {
+    padding-top: calc(var(--topbar-height)/2);
+    width: var(--mid-column-width);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.panoramaPicture {
+    height: 30vh;
+    overflow: hidden;
+    box-shadow: 2px 2px 4px grey;
+}
+
+.photo {
+    margin-top: -15%;
+    object-fit: cover;
+    width: 100%;
+    height: auto;
+}
+
+.profilePicture {
+    margin: -75px auto;
+    border: 5px solid white;
+
+    width: 1vw;
+    min-width: 150px;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+
+    object-fit: cover;
+    box-shadow: 2px 2px 4px grey;
+}
+
+.userInfo {
+    display: flex;
+    height: 15vh;
+
+    padding: 10px;
+}
+
+.rightSide {
+    display: flex;
+    flex-direction: column;
+    align-content: space-between;
+    width: 50%;
+    height: 100%;
+
+    padding-left: 90px;
+}
+
+.rightSide:last-child {
+   display: flex;
+   flex-direction: column;
+   justify-content: space-between;
+}
+
+.leftSide {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    height: 100%;
+}
+
+.nickname {
+    font-size: 1.2rem;
+}
+
+.handle {
+    font-size: 0.7rem;
+}
+
+.ffCounter {
+    font-size: 0.7rem;
+    margin-top: auto;
+    
+}
+
+.bio {
+    font-size: 1rem;
+}
+
+.dateJoined {
+    font-size: 0.7rem;
+}
+
+.optionMenu {
+    display: flex;
+    justify-content: space-around;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+    height: 4%;
+}
+
+.optionMenu button {
+    background: none;
+    border: none;
+}
+
+.feed {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+}
+

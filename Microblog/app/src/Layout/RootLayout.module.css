@@ -2,9 +2,14 @@
     display: grid;
     width: 100%;
     grid-template-columns: 1fr var(--mid-column-width) 1fr;
+    justify-content: center;
     transition: grid-template-columns 0.3s ease;
 }
 
+.focusMode {
+    grid-template-columns: 0px var(--mid-column-width) 0px;
+    margin: auto;
+}
 
 .columnOne {
     display: flex;

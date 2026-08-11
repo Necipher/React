@@ -6,7 +6,7 @@ const protect = (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-        return res.status(400).json({message: 'Invalid token'})
+        return res.status(401).json({message: 'Invalid token'})
     }
 
     // Checks validty of token, decodes it and attaches it to the req object for continuous use in the upcoming function

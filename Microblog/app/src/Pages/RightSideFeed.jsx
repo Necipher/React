@@ -1,10 +1,10 @@
 import React from 'react'
 import QuickProfile from '../Components/QuickProfile'
-import style from './ProfileFeed.module.css'
+import style from './RightSideFeed.module.css'
 import Search from '../Components/Search'
 import Trending from '../Components/Trending'
 
-const ProfileFeed = () => {
+const RightSideFeed = () => {
   return (
     <div className={style.layout}>
       <QuickProfile />
@@ -14,4 +14,4 @@ const ProfileFeed = () => {
   )
 }
 
-export default ProfileFeed
+export default RightSideFeed
