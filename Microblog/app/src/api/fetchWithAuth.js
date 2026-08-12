@@ -1,8 +1,8 @@
 let accessToken = null;
-const setAccessToken = (token) => accessToken = token;
-const getAccessToken = () => accessToken
+export const setAccessToken = (token) => accessToken = token;
+export const getAccessToken = () => accessToken
 
-const tryRefresh = async () => {
+export const tryRefresh = async () => {
     try {
         const res = await fetch('http://localhost:5000/auth/refresh', {
             method: 'POST',
@@ -19,7 +19,7 @@ const tryRefresh = async () => {
     }
 };
 
-const fetchWithAuth = async (url, options = {}) => {
+export const fetchWithAuth = async (url, options = {}) => {
     const res = await fetch(url, {
         ...options,
         credentials: 'include',

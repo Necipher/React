@@ -1,11 +1,12 @@
 .layout {
     display: flex;
 
+    align-items: center;
     justify-content: space-between;
     padding: 0 10px;
 
     width: var(--mid-column-width);
-    min-height: calc(var(--topbar-height)/2);
+    min-height: calc(var(--topbar-height) * 0.375);
     position: fixed;
     top: 0px;
     border-bottom: 1px solid var(--border);
@@ -19,6 +20,11 @@
     font-size: 0.7rem;
 }
 
-button:hover {
-    background-color: lightgrey;
+.layout button:hover {
+    color: lightgrey;
+    cursor: pointer;
+}
+
+p {
+    cursor: default;
 }

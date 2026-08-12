@@ -23,7 +23,7 @@ const router = createBrowserRouter([
         fetch('http://localhost:8000/api/fetchData'),
         fetch(`http://localhost:8000/api/library?page=${page}`)
       ]);
-
+  
       return {
         siteData: await dataRes.json(),
         paginated: await libraryRes.json()

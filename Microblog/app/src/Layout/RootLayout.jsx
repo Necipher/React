@@ -5,10 +5,6 @@ import style from './RootLayout.module.css'
 //Pages
 import LeftSideBar from '../Pages/LeftSideBar'
 import RightSideFeed from '../Pages/RightSideFeed'
-import MainFeed from '../Pages/MainFeed'
-import UserProfile from '../Pages/UserProfile'
-import PostDetail from '../Pages/PostDetail'
-import Notifications from '../Pages/Notifications'
 //Components
 import LoginForm from '../Components/LoginForm'
 import RegisterForm from '../Components/RegisterForm'
@@ -17,17 +13,28 @@ import RegisterForm from '../Components/RegisterForm'
 
 const RootLayout = () => {
     const [focusMode, setFocusMode] = useState(false)
-    const changeFocus = () => { setFocusMode(!focusMode) }
+    const [authView, setAuthView] = useState('null')
+
     return (
         <>
-            {/* <RegisterForm />     */}
-            {/* <LoginForm /> */}
+            {authView === 'login' && (
+                <LoginForm
+                    onClose={() => setAuthView(null)}
+                    onSwitchToRegister={() => setAuthView('register')}
+                />
+            )}
+            {authView === 'register' && (
+                <RegisterForm
+                    onClose={() => setAuthView(null)}
+                    onSwitchToLogin={() => setAuthView('login')}
+                />
+            )}
             <div className={`${style.grid} ${focusMode ? style.focusMode : ''}`}>
                 <div className={style.columnOne}>
                     <LeftSideBar />
                 </div>
                 <div className={style.columnTwo}>
-                    <MainFeed />
+                    <Outlet />
                 </div>
                 <div className={style.columnThree}>
                     <RightSideFeed />
@@ -38,3 +45,4 @@ const RootLayout = () => {
 }
 
 export default RootLayout
+

@@ -12,17 +12,20 @@ const { generateAccessToken, generateRefreshToken } = require('./utils/generateT
 const protect = require('./middleware/authMiddleware.js');
 
 app.use(express.json());
-app.use(cors());
+app.use(
+    cors({
+        origin: "http://localhost:3000",
+        credentials: true,
+    })
+);
 
 // Register function
 app.post('/auth/register', async (req, res) => {
-    // Takes in all the data from front end
     const { username, first_name, last_name, email, password } = req.body;
 
     if (!username || !email || !password) {
         return res.status(400).json({ message: 'Missing an input field' })
     }
-    // Compares the unique identifier against the database and checks if the user already exists there
     const isAlreadyRegistered = (await pool.query('SELECT email FROM users WHERE email = $1', [email])).rows.length > 0;
 
     if (isAlreadyRegistered) {
@@ -32,7 +35,7 @@ app.post('/auth/register', async (req, res) => {
     // If user doesnt exist encrpyts password and then adds user to the database
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const result = await pool.query('INSERT INTO users (username, first_name, last_name, email, gender, created_at, password, role) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, public_id', [username, first_name, last_name, email, gender, 'now()', hashedPassword, 'user']);
+    const result = await pool.query('INSERT INTO users (username, first_name, last_name, email, created_at, password, role) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, public_id', [username, first_name, last_name, email, 'now()', hashedPassword, 'user']);
     const { id, public_id } = result.rows[0];
 
     // Generate access and refresh tokens from new added user
@@ -43,10 +46,11 @@ app.post('/auth/register', async (req, res) => {
     await pool.query('INSERT INTO tokens(user_id, token, expires) VALUES ($1, $2, $3)', [id, refreshToken, expiresAt])
 
     // Sets the refreshToken as a cookie and the access token for work purpose
-    res.cookie('refreshToken', refreshToken, { httpOnly: true })
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
     res.json({
         'message': `User ${username} sucessfully registered`,
-        'token': accessToken
+        'accessToken': accessToken,
+        'user': { 'id': public_id, username, first_name, last_name, email }
     })
 })
 
@@ -61,22 +65,23 @@ app.post('/auth/login', async (req, res) => {
     if (user.rows.length === 0) {
         return res.status(400).json({ 'message': 'Invalid credentials' })
     }
-    const comparePass = user && await bcrypt.compare(password, user.rows[0].password);
-    if (user.rows.length <= 0 || !comparePass) {
+    const comparePass = await bcrypt.compare(password, user.rows[0].password);
+    if (!comparePass) {
         return res.status(400).json({ message: 'Invalid credentials' })
     }
 
-    const { id, public_id, username } = user.rows[0];
+    const { id, public_id, username, first_name, last_name, } = user.rows[0];
     const accessToken = generateAccessToken(public_id);
 
     const refreshToken = generateRefreshToken(public_id);
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     await pool.query('INSERT INTO tokens (user_id, token, expires) VALUES ($1, $2, $3)', [id, refreshToken, expiresAt])
 
-    res.cookie('refreshToken', refreshToken, { httpOnly: true })
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
     res.json({
         'message': `User ${username} logged sucessfully`,
-        'token': accessToken
+        'accessToken': accessToken,
+        'user': { 'id': public_id, username, first_name, last_name, email }
     })
 })
 

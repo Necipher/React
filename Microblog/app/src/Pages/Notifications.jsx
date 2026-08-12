@@ -3,8 +3,8 @@ import style from './Notifications.module.css'
 
 const Notifications = () => {
   return (
-    <div className={style.layout}>
-      <p>test</p>
+    <div>
+      Notifications
     </div>
   )
 }

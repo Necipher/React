@@ -5,7 +5,15 @@
     gap: 20px;
 }
 
-.layout h2:hover {
-    text-decoration: underline;
+.layout a:hover {
+    color: lightgrey;
     cursor: pointer;
+}
+
+a.active {
+    color: grey;
+}
+
+a {
+    text-decoration: none;
 }

@@ -1,5 +1,5 @@
 .layout {
-    padding-top: calc(var(--topbar-height)/2);
+    padding-top: calc(var(--topbar-height)*0.375);
     width: var(--mid-column-width);
     display: flex;
     flex-direction: column;
@@ -94,6 +94,18 @@
 .optionMenu button {
     background: none;
     border: none;
+}
+
+.optionMenu button:hover a {
+    color: lightgrey;
+}
+
+.optionMenu a {
+    text-decoration: none;
+}
+
+.optionMenu a.active {
+    color: grey;
 }
 
 .feed {

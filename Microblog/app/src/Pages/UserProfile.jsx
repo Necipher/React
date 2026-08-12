@@ -1,5 +1,7 @@
 import React from 'react'
 import style from './UserProfile.module.css'
+import { NavLink, Outlet } from 'react-router'
+//Components
 import UserProfileTopBar from '../Components/UserProfileTopBar'
 import profile from '../assets/profile.jpeg'
 import testPhoto from '../assets/space.png'
@@ -30,15 +32,15 @@ const UserProfile = () => {
                 </div>
             </div>
             <div className={style.optionMenu}>
-                <button>POSTS</button>
-                <button>LIKED/SAVED</button>
-                <button>COMMENTS</button>
-                <button>FOLLOWERS</button>
-                <button>FOLLOWING</button>
-                <button>MEDIA</button>
+                <button><NavLink className={({isActive}) => isActive ? style.active : ""} to={'.'} end>POSTS</NavLink></button>
+                <button><NavLink className={({isActive}) => isActive ? style.active : ""} to={'liked'}>LIKED/SAVED</NavLink></button>
+                <button><NavLink className={({isActive}) => isActive ? style.active : ""} to={'comments'}>COMMENTS</NavLink></button>
+                <button><NavLink className={({isActive}) => isActive ? style.active : ""} to={'followers'}>FOLLOWERS</NavLink></button>
+                <button><NavLink className={({isActive}) => isActive ? style.active : ""} to={'following'}>FOLLOWING</NavLink></button>
+                <button><NavLink className={({isActive}) => isActive ? style.active : ""} to={'media'}>MEDIA</NavLink></button>
             </div>
             <div className={style.feed}>
-                <UserMedia />
+                <Outlet />
             </div>
         </div>
     )

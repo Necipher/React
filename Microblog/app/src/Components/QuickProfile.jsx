@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router'
 import style from './QuickProfile.module.css'
 import picture from '../assets/profile.jpeg'
 
@@ -7,12 +8,16 @@ const QuickProfile = () => {
         <div className={style.layout}>
 
             <section className={style.pictureCage}>
+                <Link to='/profile'>
                 <img src={picture} className={style.profilePic} />
+                </Link>
             </section>
 
             <section className={style.identificatorCage}>
+                <Link to='/profile'>
                 <h1 className={style.nickname}>Jeff</h1>
                 <h1 className={style.handle}>@Jerfreyson</h1>
+                </Link>
                 <h1 className={style.bio}>An Extroverted Introvert</h1>
             </section>
 
