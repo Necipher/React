@@ -1,17 +1,17 @@
-# Personal Task Manager
+# Recipe Organizer
 
-Full-stack project — a task management app with multiple lists, built to learn the fundamentals of React, Express, and REST API design.
+A full-stack recipe management application with a custom fuzzy-search engine, built to practice React Router, API design, and algorithm implementation.
 
 ## Features
-- Create, edit, and delete tasks across multiple custom lists
-- Full CRUD operations via REST API endpoints
-- Drag-and-drop task reordering
-- Inline task editing
-- Adjustable layout with a resizable, collapsible sidebar
-- Multi-list view for working across several lists side by side
+- Browse, search, and filter a large recipe library
+- Custom fuzzy-search algorithm (Levenshtein distance) for searching recipes by name or ingredient
+- Add, edit, and delete personal recipes (full CRUD)
+- Mark recipes as favorites
+- Server-side pagination for efficient handling of large datasets
+- Client-side routing with nested routes, loaders, and outlet context
 
 ## Tech Stack
-**Frontend:** React
+**Frontend:** React, React Router
 **Backend:** Node.js, Express.js
 **Data:** JSON-based local storage
 
@@ -20,7 +20,7 @@ Full-stack project — a task management app with multiple lists, built to learn
 1. Clone the repository
 ```bash
    git clone https://github.com/Necipher/React.git
-   cd React/PTM
+   cd React/RO
 ```
 
 2. Install and start the backend
@@ -29,7 +29,7 @@ Full-stack project — a task management app with multiple lists, built to learn
    npm install
    node server.js
 ```
-   The server will run on `http://localhost:8002`
+   The server will run on `http://localhost:8000`
 
 3. In a new terminal, install and start the frontend
 ```bash
@@ -38,4 +38,4 @@ Full-stack project — a task management app with multiple lists, built to learn
    npm run dev
 ```
 
-4. Open your browser at the URL shown in the terminal (typically `http://localhost:5173`)
+4. Open your browser at `http://localhost:3000`
