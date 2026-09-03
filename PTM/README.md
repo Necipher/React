@@ -42,4 +42,4 @@ Full-stack project — a task management app with multiple lists, built to learn
    npm run dev
 ```
 
-4. Open your browser at the URL shown in the terminal (typically `http://localhost:5173`)
+4. Open your browser at the URL shown in the terminal (`http://localhost:3000`)
