@@ -77,6 +77,10 @@
     border: none;
 }
 
+.option:hover {
+    background-color: red;
+}
+
 .status{
     font-size: 0.7rem;
     color: var(--text-2);

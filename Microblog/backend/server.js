@@ -10,8 +10,10 @@ const app = express();
 
 const { generateAccessToken, generateRefreshToken } = require('./utils/generateToken.js');
 const protect = require('./middleware/authMiddleware.js');
+const cookieParser = require('./middleware/cookieParser.js');
 
 app.use(express.json());
+app.use(cookieParser)
 app.use(
     cors({
         origin: "http://localhost:3000",
@@ -54,10 +56,11 @@ app.post('/auth/register', async (req, res) => {
     })
 })
 
-// Login function
+// Login function  
 app.post('/auth/login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
+        z
         return res.status(400).json({ message: 'Missing an input field' })
     }
 
@@ -85,19 +88,25 @@ app.post('/auth/login', async (req, res) => {
     })
 })
 
-app.get('/profile', protect, async (req, res) => {
-    const result = await pool.query('SELECT * FROM users WHERE public_id = $1', [req.user.payload])
+app.get('/user/profile', protect, async (req, res) => {
+    const result = await pool.query('SELECT public_id, username, first_name, last_name, email, role FROM users WHERE public_id = $1', [req.user.payload])
     res.json(result.rows)
 })
 
 // Logout function
 app.post('/auth/logout', async (req, res) => {
-    const token = req.cookies.refreshToken;
+    try {
+        const token = req.cookies.refreshToken;
 
-    if (token) {
-        await pool.query('DELETE FROM tokens WHERE token = $1', [token]);
+        if (token) {
+            await pool.query('DELETE FROM tokens WHERE token = $1', [token]);
+        }
+        res.clearCookie('refreshToken')
+        res.status(200).json({ message: 'Logged out successfully' })
+    } catch (err) {
+        console.error('Logout error', err)
+        res.status(500).json({ message: 'Logout failed' })
     }
-    res.clearCookie('refreshToken')
 })
 
 // Refresh logic for automatic new refresh token
@@ -116,7 +125,7 @@ app.post('/auth/refresh', async (req, res) => {
         return res.status(401).json({ 'message': 'User does not exist' })
     }
     // Checks if the token is in the database
-    const result = await pool.query('SELECT * FROM tokens WHERE token = $1 AND id = $2', [token, user.rows[0].id]);
+    const result = await pool.query('SELECT * FROM tokens WHERE token = $1 AND user_id = $2', [token, user.rows[0].id]);
     if (!result.rows[0]) {
         return res.status(403).json({ 'message': 'Token access revoken' })
     }
@@ -134,7 +143,16 @@ app.post('/auth/refresh', async (req, res) => {
     await pool.query('INSERT INTO tokens (user_id, token, expires) VALUES ($1, $2, $3)', [user.rows[0].id, newRefreshToken, expiresAt]);
 
     res.cookie('refreshToken', newRefreshToken, { httpOnly: true });
-    res.json({ accessToken: newAccessToken })
+    res.json({
+        'accessToken': newAccessToken,
+        'user': {
+            id: user.rows[0].public_id,
+            username: user.rows[0].username,
+            first_name: user.rows[0].first_name,
+            last_name: user.rows[0].last_name,
+            email: user.rows[0].email
+        }
+    })
 })
 
 app.listen(PORT, () => console.log(`Server started at port ${PORT}`))

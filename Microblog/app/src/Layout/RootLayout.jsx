@@ -8,12 +8,12 @@ import RightSideFeed from '../Pages/RightSideFeed'
 //Components
 import LoginForm from '../Components/LoginForm'
 import RegisterForm from '../Components/RegisterForm'
-
-
+//Context
+import { useAuthContext } from '../context/AuthContext'
 
 const RootLayout = () => {
     const [focusMode, setFocusMode] = useState(false)
-    const [authView, setAuthView] = useState('null')
+    const { authView, setAuthView } = useAuthContext()
 
     return (
         <>

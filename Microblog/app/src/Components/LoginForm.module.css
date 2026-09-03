@@ -74,3 +74,23 @@ input {
     margin-top: auto;
     margin-bottom: 10px;
 }
+
+.closeButton {
+    align-self: flex-end;
+    margin-top: 10px;
+    margin-right: -40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border: none;
+    background-color: lightgrey;
+    color: lightgrey;
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+}
+
+.closeButton:hover {
+    background-color: red;
+    color: red;
+}
