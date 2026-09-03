@@ -15,6 +15,10 @@ A full-stack recipe management application with a custom fuzzy-search engine, bu
 **Backend:** Node.js, Express.js
 **Data:** JSON-based local storage
 
+## Prerequisites
+- [Node.js](https://nodejs.org/) — v18 or higher recommended
+- [Git](https://git-scm.com/) 
+
 ## How to Run
 
 1. Clone the repository
