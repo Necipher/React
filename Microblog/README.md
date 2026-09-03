@@ -18,3 +18,7 @@ A full-stack social media platform currently in active development, built to pra
 **Database:** PostgreSQL
 **Auth:** JWT, bcrypt, httpOnly cookies
 
+## Prerequisites
+- [Node.js](https://nodejs.org/) — v18 or higher recommended
+- [PostgreSQL](https://www.postgresql.org/download/) 
+- [Git](https://git-scm.com/) 
