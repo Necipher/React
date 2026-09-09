@@ -29,7 +29,7 @@ const useAuth = () => {
         refreshSession();
     }, [])
 
-    async function registerNewUser(username, first_name, last_name, email, password) {
+    async function registerNewUser(handle, username, first_name, last_name, email, password) {
         setLoading(true);
         setError(null);
         try {
@@ -37,7 +37,7 @@ const useAuth = () => {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-type': 'application/json' },
-                body: JSON.stringify({ username, first_name, last_name, email, password })
+                body: JSON.stringify({ handle, username, first_name, last_name, email, password })
             });
             const data = await res.json()
             if (!res.ok) {
@@ -98,7 +98,7 @@ const useAuth = () => {
         }
     }
 
-    return { user, error, loading, initializing, registerNewUser, login, logout, getProfile, authView, setAuthView }
+    return { user, error, loading, initializing, registerNewUser, login, logout, authView, setAuthView }
 }
 
 export default useAuth

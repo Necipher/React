@@ -1,0 +1,53 @@
+.profilePicture {
+    margin-left: 10px;
+    margin-right: 20px;
+
+    width: 1vw;
+    min-width: 40px;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+
+    object-fit: cover;
+}
+
+.noteWrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border-top: 1px solid var(--border);
+}
+
+.noteWrapper input {
+    width: 100%;
+    margin-right: 20px;
+    border: none;
+    caret-color: var(--text-2);
+
+    font-size: 0.9rem;
+}
+
+.noteWrapper input:focus {
+    outline: none;
+}
+
+.postButton {
+    border: none;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    width: 100%;
+}
+
+.postButton:hover {
+    background-color: lightgrey;
+    cursor: pointer;
+}
+
+.characterCount {
+    font-size: 0.8rem;
+}
+
+.message {
+    margin-left: 20px;
+    font-size: 0.8rem;
+}

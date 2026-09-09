@@ -1,18 +1,18 @@
 import React from 'react'
 import style from './TopBar.module.css'
 import profile from '../assets/profile.jpeg'
+import CreatePost from './CreatePost.jsx'
+import { useAuthContext } from '../context/AuthContext.jsx'
 
 const TopBar = () => {
+  const { user } = useAuthContext()
   return (
     <div className={style.layout}>
       <div className={style.feedView}>
         <button className={style.feedButton}>My Following</button>
         <button className={style.feedButton}>My World</button>
       </div>
-      <div className={style.noteWrapper}>
-        <img src={profile} className={style.profilePicture} />
-        <input autoFocus type='text' placeholder='What is new?' />
-      </div>
+      {user && <CreatePost />}
     </div>
   )
 }

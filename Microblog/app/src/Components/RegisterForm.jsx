@@ -5,7 +5,7 @@ import style from './RegisterForm.module.css'
 
 const RegisterForm = ({ onClose, onSwitchToLogin }) => {
     const { registerNewUser, error, loading } = useAuthContext()
-    const [user, setUser] = useState({ 'username': '', 'first_name': '', 'last_name': '', 'email': '', 'password': '', 'confirm': '' })
+    const [user, setUser] = useState({'handle': '', 'username': '', 'first_name': '', 'last_name': '', 'email': '', 'password': '', 'confirm': '' })
     const [formError, setFormError] = useState(null);
 
     function changeUserData(e, inputField) {
@@ -18,7 +18,7 @@ const RegisterForm = ({ onClose, onSwitchToLogin }) => {
     async function handleSubmit(e) {
         e.preventDefault();
         setFormError(null)
-        if (user.username === '' || user.email === '' || user.password === '') {
+        if (user.handle === '' || user.email === '' || user.password === '') {
             setFormError('Please fill in all required fields');
             return
         }
@@ -26,10 +26,10 @@ const RegisterForm = ({ onClose, onSwitchToLogin }) => {
             setFormError('Passwords do not match')
             return
         }
-        const success = await registerNewUser(user.username.toLowerCase(), user.first_name.toLowerCase(), user.last_name.toLowerCase(), user.email.toLowerCase(), user.password)
+        const success = await registerNewUser(user.handle.toLowerCase(), user.username.toLowerCase(), user.first_name.toLowerCase(), user.last_name.toLowerCase(), user.email.toLowerCase(), user.password)
 
         if (success) {
-            setUser({ 'username': '', 'first_name': '', 'last_name': '', 'email': '', 'password': '', 'confirm': '' });
+            setUser({'handle': '', 'username': '', 'first_name': '', 'last_name': '', 'email': '', 'password': '', 'confirm': '' });
             onClose()
         }
     }
@@ -43,7 +43,8 @@ const RegisterForm = ({ onClose, onSwitchToLogin }) => {
             >
                 <button type='button' className={style.closeButton} onClick={onClose} >X</button>
                 <h1 className={style.title}>REGISTER USER</h1>
-                <input type='text' placeholder='Username...' value={user.username} onChange={(e) => changeUserData(e, 'username')} />
+                <input type='text' placeholder='Handle... ' value={user.handle} onChange={(e) => changeUserData(e, 'handle')} />
+                <input type='text' placeholder='Displayed Name (Optional)...' value={user.username} onChange={(e) => changeUserData(e, 'username')} />
                 <input type='text' placeholder='First Name (Optional)...' value={user.first_name} onChange={(e) => changeUserData(e, 'first_name')} />
                 <input type='text' placeholder='Last Name (Optional)...' value={user.last_name} onChange={(e) => changeUserData(e, 'last_name')} />
                 <input type='email' placeholder='Email...' value={user.email} onChange={(e) => changeUserData(e, 'email')} />

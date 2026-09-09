@@ -13,7 +13,18 @@ CREATE TABLE users (
 );
 
 CREATE TABLE tokens (
+    id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     token TEXT NOT NULL,
     expires TIMESTAMP NOT NULL
+);
+
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    public_id UUID DEFAULT gen_random_uuid() UNIQUE,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    parent_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
+    content VARCHAR(280) NOT NULL,
+    image_url TEXT,
+    created_at TIMESTAMP DEFAULT now()
 );

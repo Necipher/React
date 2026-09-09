@@ -18,6 +18,7 @@ const useProfile = () => {
         }
         const data = await res.json();
         setProfile(data);
+        setLoading(false);
         return true;
     }
 

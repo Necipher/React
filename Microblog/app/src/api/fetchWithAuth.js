@@ -4,7 +4,7 @@ export const getAccessToken = () => accessToken
 
 export const tryRefresh = async () => {
     try {
-        const res = await fetch('http://localhost:5000/auth/refresh', {
+        const res = await fetch('http://localhost:5004/auth/refresh', {
             method: 'POST',
             credentials: 'include'
         });
