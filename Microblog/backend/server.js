@@ -9,7 +9,7 @@ const PORT = process.env.PORT;
 const app = express();
 
 const { generateAccessToken, generateRefreshToken } = require('./utils/generateToken.js');
-const protect = require('./middleware/authMiddleware.js');
+const {protect, optionalAuth} = require('./middleware/authMiddleware.js');
 const cookieParser = require('./middleware/cookieParser.js');
 
 app.use(express.json());
@@ -168,6 +168,20 @@ app.post('/user/post', protect, async (req, res) => {
     const result = await pool.query('INSERT INTO posts (user_id, content) VALUES ($1, $2) RETURNING public_id, content, created_at', [userId, content]);
 
     res.status(200).json({'message': 'Post created', post: result.rows[0]})
+})
+
+app.get('/home', optionalAuth, async (req, res) => {
+    const userId = req.user?.payload
+    const {limit, offset} = req.query
+
+    const safeLimit = Math.min(Number(limit) || 10, 50);
+    const safeOffset = Number(offset) || 0;
+
+    // Once decided, needs a personalized fetch for the loged in user, maybe his hidden messages, etc...
+    const data = await pool.query('SELECT * FROM POSTS ORDER BY ID DESC LIMIT $1 OFFSET $2', [safeLimit, safeOffset]);
+    
+    res.json(data.rows)
+
 })
 
 app.listen(PORT, () => console.log(`Server started at port ${PORT}`))
