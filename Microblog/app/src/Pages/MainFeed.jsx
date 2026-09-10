@@ -18,11 +18,12 @@ const MainFeed = () => {
       <TopBar />
 
       <div>
-        {postsFeed.map(post => <Post key={post.public_id} content={post.content} /> )}
+        {postsFeed.map(post => <Post key={post.public_id} content={post.content} />)}
       </div>
 
-      <button>MORE</button>
-    </div>
+      {/* Button needs to add functionality for loading more data */}
+      <button className={style.moreButton}>MORE</button>
+    </div >
   )
 }
 
