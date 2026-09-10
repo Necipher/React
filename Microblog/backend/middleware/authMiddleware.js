@@ -6,7 +6,7 @@ const protect = (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-        return res.status(401).json({message: 'Invalid token'})
+        return res.status(401).json({ message: 'Invalid token' })
     }
 
     // Checks validty of token, decodes it and attaches it to the req object for continuous use in the upcoming function
@@ -17,4 +17,18 @@ const protect = (req, res, next) => {
     next();
 }
 
-module.exports = protect;
+const optionalAuth = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        req.user = null
+        return next();
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+}
+
+module.exports = { protect, optionalAuth };

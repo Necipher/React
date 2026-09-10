@@ -5,6 +5,16 @@
     flex-direction: column;
 }
 
+button {
+    border: none;
+    background-color: transparent;
+}
+
+button:hover {
+    background-color: lightgrey;
+    cursor: pointer;
+}
+
 
 /* The other layout is in TopBar.module.css */
 /* .layout2 {

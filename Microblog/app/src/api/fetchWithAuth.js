@@ -51,3 +51,14 @@ export const fetchWithAuth = async (url, options = {}) => {
 
     return res;
 }
+
+export const fetchWithOptionalAuth = async (url, options = {}) => {
+    const head = accessToken ? { ...options.headers, 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` } : { ...options.headers, 'Content-Type': 'application/json' }
+
+    const res = await fetch(url, {
+        ...options,
+        credentials: 'include',
+        headers: head
+    })
+    return res;
+}
