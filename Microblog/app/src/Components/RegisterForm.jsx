@@ -26,7 +26,7 @@ const RegisterForm = ({ onClose, onSwitchToLogin }) => {
             setFormError('Passwords do not match')
             return
         }
-        const success = await registerNewUser(user.handle.toLowerCase(), user.username.toLowerCase(), user.first_name.toLowerCase(), user.last_name.toLowerCase(), user.email.toLowerCase(), user.password)
+        const success = await registerNewUser(user.handle, user.username, user.first_name.toLowerCase(), user.last_name.toLowerCase(), user.email.toLowerCase(), user.password)
 
         if (success) {
             setUser({'handle': '', 'username': '', 'first_name': '', 'last_name': '', 'email': '', 'password': '', 'confirm': '' });

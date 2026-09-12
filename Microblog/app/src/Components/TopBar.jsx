@@ -4,7 +4,7 @@ import profile from '../assets/profile.jpeg'
 import CreatePost from './CreatePost.jsx'
 import { useAuthContext } from '../context/AuthContext.jsx'
 
-const TopBar = () => {
+const TopBar = ({createPost, error, loading}) => {
   const { user } = useAuthContext()
   return (
     <div className={style.layout}>
@@ -12,7 +12,7 @@ const TopBar = () => {
         <button className={style.feedButton}>My Following</button>
         <button className={style.feedButton}>My World</button>
       </div>
-      {user && <CreatePost />}
+      {user && <CreatePost createPost={createPost} error={error} loading={loading}/>}
     </div>
   )
 }

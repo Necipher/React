@@ -2,11 +2,10 @@ import { useEffect } from 'react'
 import Post from '../Components/Post'
 import TopBar from '../Components/TopBar'
 import style from './MainFeed.module.css'
-import testPhoto from '../assets/space.png'
 import usePost from '../hooks/usePost'
 
 const MainFeed = () => {
-  const { postsFeed, loading, error, fetchPosts } = usePost();
+  const { postsFeed, loading, error, fetchPosts, createPost } = usePost();
 
   useEffect(() => {
     fetchPosts();
@@ -15,14 +14,22 @@ const MainFeed = () => {
 
   return (
     <div className={style.layout}>
-      <TopBar />
+      <TopBar createPost={createPost} error={error} loading={loading} />
 
       <div>
-        {postsFeed.map(post => <Post key={post.public_id} content={post.content} />)}
+        {postsFeed.length > 0 ? postsFeed.map(post =>
+          <Post
+            key={post.public_id}
+            content={post.content}
+            avatar_url={post.avatar_url}
+            handle={post.handle}
+            username={post.username}
+            photo={post.image_url}
+          />) : <p className={style.emptyDatabase}>No posts exist yet</p>}
       </div>
 
       {/* Button needs to add functionality for loading more data */}
-      <button className={style.moreButton}>MORE</button>
+      {postsFeed.length > 0 ? <button className={style.moreButton}>MORE</button> : ''}
     </div >
   )
 }

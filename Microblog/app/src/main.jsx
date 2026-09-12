@@ -30,7 +30,7 @@ const router = createBrowserRouter([
         element: <MainFeed />
       },
       {
-        path: '/profile',
+        path: '/:handle',
         element: <UserProfile />,
         children: [
           { index: true, element: <UsersPosts /> },

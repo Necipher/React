@@ -9,7 +9,7 @@ const PORT = process.env.PORT;
 const app = express();
 
 const { generateAccessToken, generateRefreshToken } = require('./utils/generateToken.js');
-const {protect, optionalAuth} = require('./middleware/authMiddleware.js');
+const { protect, optionalAuth } = require('./middleware/authMiddleware.js');
 const cookieParser = require('./middleware/cookieParser.js');
 
 app.use(express.json());
@@ -20,6 +20,9 @@ app.use(
         credentials: true,
     })
 );
+
+// Default folder, currently used for default profile picture provided at creation
+app.use('/public', express.static('public'));
 
 // Register function
 app.post('/auth/register', async (req, res) => {
@@ -37,8 +40,10 @@ app.post('/auth/register', async (req, res) => {
     // If user doesnt exist encrpyts password and then adds user to the database
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const result = await pool.query('INSERT INTO users (username, first_name, last_name, email, created_at, password, role, handle) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, public_id', [username, first_name, last_name, email, 'now()', hashedPassword, 'user', `@${handle}`]);
-    const { id, public_id } = result.rows[0];
+    const defaultAvatar = 'http://localhost:5004/public/default-avatar.png'
+    const defaultBanner = 'http://localhost:5004/public/default-banner.png'
+    const result = await pool.query('INSERT INTO users (username, first_name, last_name, email, created_at, password, role, handle, avatar_url, banner_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id, public_id, avatar_url, handle, bio, quick_status', [username, first_name, last_name, email, 'now()', hashedPassword, 'user', handle, defaultAvatar, defaultBanner]);
+    const { id, public_id, avatar_url, handle: storedHandle } = result.rows[0];
 
     // Generate access and refresh tokens from new added user
     const accessToken = generateAccessToken(public_id)
@@ -52,7 +57,7 @@ app.post('/auth/register', async (req, res) => {
     res.json({
         'message': `User ${username} sucessfully registered`,
         'accessToken': accessToken,
-        'user': { 'id': public_id, username, first_name, last_name, email }
+        'user': { 'id': public_id, username, first_name, last_name, email, handle: `@${storedHandle}`, avatar_url, bio, quick_status }
     })
 })
 
@@ -72,7 +77,7 @@ app.post('/auth/login', async (req, res) => {
         return res.status(400).json({ message: 'Invalid credentials' })
     }
 
-    const { id, public_id, username, first_name, last_name, } = user.rows[0];
+    const { id, public_id, username, first_name, last_name, avatar_url, handle: storedHandle, bio, quick_status } = user.rows[0];
     const accessToken = generateAccessToken(public_id);
 
     const refreshToken = generateRefreshToken(public_id);
@@ -83,7 +88,7 @@ app.post('/auth/login', async (req, res) => {
     res.json({
         'message': `User ${username} logged sucessfully`,
         'accessToken': accessToken,
-        'user': { 'id': public_id, username, first_name, last_name, email }
+        'user': { 'id': public_id, username, first_name, last_name, email, handle: `@${storedHandle}`, avatar_url, bio, quick_status }
     })
 })
 
@@ -110,7 +115,7 @@ app.post('/auth/refresh', async (req, res) => {
     if (!token) {
         return res.status(401).json({ 'message': 'No token, no access' });
     }
-    
+
     // Decodes the cookie with secret and checks it if it exist in database
     const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
     const public_id = decoded.payload
@@ -145,7 +150,12 @@ app.post('/auth/refresh', async (req, res) => {
             username: user.rows[0].username,
             first_name: user.rows[0].first_name,
             last_name: user.rows[0].last_name,
-            email: user.rows[0].email
+            email: user.rows[0].email,
+            handle: '@' + user.rows[0].handle,
+            avatar_url: user.rows[0].avatar_url,
+            banner_url: user.rows[0].banner_url,
+            bio: user.rows[0].bio,
+            quick_status: user.rows[0].quick_status
         }
     })
 })
@@ -154,34 +164,55 @@ app.post('/user/post', protect, async (req, res) => {
     const { content } = req.body;
 
     if (content === '' || content.trim() === '') {
-        return res.status(400).json({'message': 'Message field is empty'});
+        return res.status(400).json({ 'message': 'Message field is empty' });
     }
     if (content.length > 280) {
-        return res.status(400).json({'message': 'Post excedes character limit'});
+        return res.status(400).json({ 'message': 'Post excedes character limit' });
     }
 
     const user = await pool.query('SELECT * FROM users WHERE public_id = $1', [req.user.payload]);
     if (!user.rows[0]) {
-        return res.status(400).json({'message': 'User not found'})
+        return res.status(400).json({ 'message': 'User not found' })
     }
     const userId = user.rows[0].id;
     const result = await pool.query('INSERT INTO posts (user_id, content) VALUES ($1, $2) RETURNING public_id, content, created_at', [userId, content]);
 
-    res.status(200).json({'message': 'Post created', post: result.rows[0]})
+    res.status(200).json({ 'message': 'Post created', post: result.rows[0] })
 })
 
 app.get('/home', optionalAuth, async (req, res) => {
     const userId = req.user?.payload
-    const {limit, offset} = req.query
+    const { limit, offset } = req.query
 
     const safeLimit = Math.min(Number(limit) || 10, 50);
     const safeOffset = Number(offset) || 0;
 
     // Once decided, needs a personalized fetch for the loged in user, maybe his hidden messages, etc...
-    const data = await pool.query('SELECT * FROM POSTS ORDER BY ID DESC LIMIT $1 OFFSET $2', [safeLimit, safeOffset]);
-    
+    const data = await pool.query('SELECT * FROM posts LEFT JOIN users ON users.id = posts.user_id ORDER BY posts.id DESC LIMIT $1 OFFSET $2', [safeLimit, safeOffset]);
+
     res.json(data.rows)
 
+})
+
+// Get profile function still under construction, many mistakes inclouded
+app.get('/:handle', optionalAuth, async (req, res) => {
+    const extractedHandle = req.params.handle
+
+    const user = await pool.query('SELECT * FROM users WHERE handle = $1', [extractedHandle])
+    res.status(200).json({
+        'user': {
+            id: user.rows[0].public_id,
+            username: user.rows[0].username,
+            first_name: user.rows[0].first_name,
+            last_name: user.rows[0].last_name,
+            email: user.rows[0].email,
+            handle: '@' + user.rows[0].handle,
+            avatar_url: user.rows[0].avatar_url,
+            banner_url: user.rows[0].banner_url,
+            bio: user.rows[0].bio,
+            quick_status: user.rows[0].quick_status
+        }
+    })
 })
 
 app.listen(PORT, () => console.log(`Server started at port ${PORT}`))

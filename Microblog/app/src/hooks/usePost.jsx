@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { fetchWithAuth, fetchWithOptionalAuth } from '../api/fetchWithAuth.js'
+import { useAuthContext } from "../context/AuthContext.jsx";
 
 function usePost() {
+    const { user } = useAuthContext();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [postsFeed, setPostsFeed] = useState([]);
@@ -22,7 +24,9 @@ function usePost() {
                 setError(data.message || 'Failed to create post');
                 return false
             }
-            return data.post
+            // setPostsFeed here should force a refresh of the feed so the new post created automaticaly appears on top of the feed without needing a refresh but it DOESNT WORK
+            setPostsFeed(prev => [{ ...user, ...data.post }, ...prev])
+            return { ...user, ...data.post }
 
 
         } catch (err) {
@@ -56,9 +60,9 @@ function usePost() {
         }
 
     }
-    
 
-    return { loading, error, createPost, fetchPosts, postsFeed};
+
+    return { loading, error, createPost, fetchPosts, postsFeed };
 
 }
 

@@ -9,7 +9,6 @@ const Recipe = () => {
     const { id } = useParams()
     const chosenRecipe = siteData?.library?.find(recipe => recipe.idMeal == id) || siteData?.user?.find(recipe => recipe.idMeal == id)
 
-    console.log(chosenRecipe)
     return (
         <div>
             <ScrollToTop />

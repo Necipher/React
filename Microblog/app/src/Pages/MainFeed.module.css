@@ -5,14 +5,21 @@
     flex-direction: column;
 }
 
-moreButton {
+.moreButton {
     border: none;
     background-color: transparent;
+    margin-top: 10px;
 }
 
-moreButton:hover {
+.moreButton:hover {
     background-color: lightgrey;
     cursor: pointer;
+}
+
+.emptyDatabase {
+    justify-self: center;
+    color: grey;
+    margin: 20px;
 }
 
 
