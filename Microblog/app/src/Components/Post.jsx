@@ -1,12 +1,19 @@
 import style from './Post.module.css'
+import { Link } from 'react-router'
+import { useNavigate } from 'react-router';
 
 
-const Post = ({ avatar_url, content, handle, username, photo }) => {
+const Post = ({ avatar_url, content, handle, username, photo, public_id }) => {
+    const navigate = useNavigate();
+    const goToProfile = (e) => {
+        e.stopPropagation();
+        navigate(`/${handle}`)
+    }
 
     return (
-        <div className={style.postLayout}>
-            <img src={avatar_url} className={style.profilePicture} />
-            <div className={style.profileName}>
+        <div className={style.postLayout} onClick={(e) => { e.stopPropagation(); navigate(`/${handle}/status/${public_id}`) }}>
+            <img src={avatar_url} className={style.profilePicture} onClick={goToProfile}/>
+            <div className={style.profileName} onClick={goToProfile}>
                 <h1 className={style.nickname}>{username}</h1>
                 <h4 className={style.handle}>@{handle}</h4>
             </div>
@@ -17,7 +24,7 @@ const Post = ({ avatar_url, content, handle, username, photo }) => {
                 <button className={style.operationButton}>C</button>
                 <button className={style.operationButton}>D</button>
             </div>
-        </div>
+        </div >
     )
 }
 

@@ -28,6 +28,10 @@
     border: 0.5px solid lightgrey;
 }
 
+.profilePicture:hover {
+    filter: brightness(0.6);
+}
+
 .profileName {
     display: flex;
     padding-top: 10px;
@@ -47,9 +51,17 @@
     color: var(--text-1);
 }
 
+.nickname:hover {
+    text-decoration: underline;
+}
+
 .handle {
     font-size: 0.8rem;
     color: var(--text-3);
+}
+
+.handle:hover {
+    text-decoration: underline;
 }
 
 .post {
@@ -92,4 +104,10 @@
     object-fit: cover;
     width: 40%;
     height: auto;
+}
+
+.linkReset {
+    display: contents; /* or flex/block depending on what you need */
+    text-decoration: none;
+    color: inherit;
 }

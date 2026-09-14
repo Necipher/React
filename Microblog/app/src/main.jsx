@@ -10,6 +10,7 @@ import UserProfile from './Pages/UserProfile'
 import DirectMessages from './Pages/DirectMessages'
 import Notifications from './Pages/Notifications'
 import Settings from './Pages/Settings'
+import PostPage from './Pages/PostPage'
 //SubPages
 import UsersPosts from './Pages/UsersPosts'
 import UserLikedPosts from './Pages/UserLikedPosts'
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
         ]
       },
       {
+        path: '/:handle/status/:postId',
+        element: <PostPage />
+      },
+      {
         path: '/directmessages',
         element: <DirectMessages />
       },
@@ -58,9 +63,10 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById('root')).render(
+  
   <StrictMode>
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>
-  </StrictMode>,
+  </StrictMode>
 )

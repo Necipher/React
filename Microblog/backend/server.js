@@ -194,6 +194,28 @@ app.get('/home', optionalAuth, async (req, res) => {
 
 })
 
+app.get('/userPosts/:handle', optionalAuth, async (req, res) => {
+    const handle = req.params.handle
+
+    const user = await pool.query('SELECT * FROM users WHERE handle = $1', [handle]);
+    if (!user.rows[0]) {
+        return res.status(404).json({ message: 'User doest not exist' })
+    }
+
+    const data = await pool.query('SELECT * from posts WHERE user_id = $1', [user.rows[0].id])
+
+    res.status(200).json({
+        'user': {
+            username: user.rows[0].username,
+            first_name: user.rows[0].first_name,
+            last_name: user.rows[0].last_name,
+            avatar_url: user.rows[0].avatar_url,
+            handle: user.rows[0].handle
+        },
+        'posts': data.rows
+    })
+})
+
 // Get profile function still under construction, many mistakes inclouded
 app.get('/:handle', optionalAuth, async (req, res) => {
     const extractedHandle = req.params.handle

@@ -4,14 +4,6 @@ import { NavLink, Outlet, useParams } from 'react-router'
 import useProfile from '../hooks/useProfile'
 //Components
 import UserProfileTopBar from '../Components/UserProfileTopBar'
-import profile from '../assets/profile.jpeg'
-import testPhoto from '../assets/space.png'
-import UsersPosts from './UsersPosts'
-import UserLikedPosts from './UserLikedPosts'
-import UserComments from './UserComments'
-import UserFollowers from './UserFollowers'
-import UserFollowing from './UserFollowing'
-import UserMedia from './UserMedia'
 
 const UserProfile = () => {
     const { handle } = useParams();

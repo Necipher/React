@@ -61,8 +61,18 @@ function usePost() {
 
     }
 
+    async function fetchUserPosts(handle) {
+        setLoading(true);
+        setError(null);
 
-    return { loading, error, createPost, fetchPosts, postsFeed };
+        const res = await fetchWithOptionalAuth(`http://localhost:5004/userPosts/${handle}`);
+        const data = await res.json()
+
+        return data;
+    }
+
+
+    return { loading, error, createPost, fetchPosts, postsFeed, fetchUserPosts };
 
 }
 
