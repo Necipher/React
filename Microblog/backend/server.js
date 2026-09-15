@@ -202,7 +202,7 @@ app.get('/userPosts/:handle', optionalAuth, async (req, res) => {
         return res.status(404).json({ message: 'User doest not exist' })
     }
 
-    const data = await pool.query('SELECT * from posts WHERE user_id = $1', [user.rows[0].id])
+    const data = await pool.query('SELECT * from posts WHERE user_id = $1 ORDER BY id DESC', [user.rows[0].id])
 
     res.status(200).json({
         'user': {
