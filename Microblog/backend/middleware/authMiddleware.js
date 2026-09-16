@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 
 const protect = (req, res, next) => {
-    // Extracting the token from req header object sent from frontend
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
@@ -9,8 +8,13 @@ const protect = (req, res, next) => {
         return res.status(401).json({ message: 'Invalid token' })
     }
 
-    // Checks validty of token, decodes it and attaches it to the req object for continuous use in the upcoming function
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    let decoded
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+        console.error(err);
+        return res.status(401).json({ message: 'Invalid or Expired token' })
+    }
     req.user = decoded
 
     // Next passes control to the followup function
@@ -26,7 +30,14 @@ const optionalAuth = (req, res, next) => {
         return next();
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    let decoded
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+        console.error(err);
+        req.user = null
+        return next();
+    }
     req.user = decoded;
     next();
 }
