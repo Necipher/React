@@ -229,6 +229,7 @@ app.post('/auth/refresh', async (req, res, next) => {
     }
 })
 
+// Function for adding a new post
 app.post('/user/post', protect, async (req, res, next) => {
     try {
         const { content } = req.body;
@@ -253,9 +254,9 @@ app.post('/user/post', protect, async (req, res, next) => {
     }
 })
 
+// Fetches all posts from database based on provided limits
 app.get('/home', optionalAuth, async (req, res, next) => {
     try {
-
         const userId = req.user?.payload
         const { limit, offset } = req.query
 
@@ -285,11 +286,10 @@ app.get('/home', optionalAuth, async (req, res, next) => {
 
 })
 
+// Function for fetching all posts from a user
 app.get('/userPosts/:handle', optionalAuth, async (req, res, next) => {
     try {
-
-        const handle = req.params.handle
-
+        const handle = req.params.handle;
         const user = await pool.query(`
             SELECT 
             users.id,
@@ -302,7 +302,7 @@ app.get('/userPosts/:handle', optionalAuth, async (req, res, next) => {
             WHERE handle = $1
             `, [handle]);
         if (!user.rows[0]) {
-            return res.status(404).json({ message: 'User doest not exist' })
+            return res.status(404).json({ message: 'User doest not exist' });
         }
 
         const data = await pool.query(`
@@ -331,12 +331,10 @@ app.get('/userPosts/:handle', optionalAuth, async (req, res, next) => {
     }
 })
 
-// Get profile function still under construction, many mistakes inclouded
+// Get Profile function
 app.get('/:handle', optionalAuth, async (req, res, next) => {
     try {
-
-        const extractedHandle = req.params.handle
-
+        const extractedHandle = req.params.handle;
         const user = await pool.query(`
             SELECT 
             users.id, 
@@ -375,6 +373,84 @@ app.get('/:handle', optionalAuth, async (req, res, next) => {
     }
 })
 
+// Delete Post
+app.delete('/user/post/:postId', protect, async (req, res, next) => {
+    try {
+        const postId = req.params.postId;
+        const userId = await pool.query('SELECT users.id FROM users WHERE public_id = $1', [req.user.payload]);
+        if (!userId.rows[0]) {
+            return res.status(404).json({ message: 'User does not exist' });
+        }
+
+        const post = await pool.query('SELECT posts.id FROM posts WHERE public_id = $1 AND user_id = $2', [postId, userId.rows[0].id]);
+        if (!post.rows[0]) {
+            return res.status(404).json({ message: 'Post does not exist' });
+        }
+
+        await pool.query('DELETE FROM posts WHERE id = $1', [post.rows[0].id]);
+        res.status(200).json({ message: 'Post deleted' });
+    } catch (err) {
+        next(err);
+    }
+})
+
+// Update Post
+app.patch('/user/post/:postId', protect, async (req, res, next) => {
+    try {
+        const postId = req.params.postId;
+        const { updatedContent } = req.body;
+        if (typeof updatedContent !== 'string' || updatedContent.trim() === '' || updatedContent.length > 280) {
+            return res.status(400).json({ message: 'Wrong input' });
+        }
+        const userId = await pool.query('SELECT users.id FROM users WHERE public_id = $1', [req.user.payload]);
+        if (!userId.rows[0]) {
+            return res.status(404).json({ message: 'User does not exist' });
+        }
+
+        const post = await pool.query('SELECT posts.id FROM posts WHERE public_id = $1 AND user_id = $2', [postId, userId.rows[0].id]);
+        if (!post.rows[0]) {
+            return res.status(404).json({ message: 'Post does not exist' });
+        }
+
+        const update = await pool.query('UPDATE posts SET content = $1 WHERE id = $2 RETURNING content, created_at', [updatedContent, post.rows[0].id]);
+        res.status(200).json({ message: 'Post Updated', postContent: update.rows[0] });
+
+    } catch (err) {
+        next(err);
+    }
+})
+
+// Get Post
+app.get('/user/post/:postId', async (req, res, next) => {
+    try {
+        const postId = req.params.postId;
+        const data = await pool.query(`
+            SELECT 
+                posts.public_id,
+                posts.content,
+                posts.image_url,
+                posts.created_at,
+                users.username,
+                users.first_name,
+                users.last_name,
+                users.avatar_url,
+                users.handle 
+            FROM posts 
+            LEFT JOIN users ON users.id = posts.user_id
+            WHERE public_id = $1 
+            ORDER BY id DESC
+            `, [postId]);
+        if (!data.rows[0]) {
+            return res.status(404).json({ message: 'Post not found' })
+        }
+
+        res.status(200).json({ 'data': data.rows[0] });
+
+    } catch (err) {
+        next(err)
+    }
+})
+
 app.use((req, res) => {
     res.status(404).json({ message: 'Route not found' });
 })
@@ -384,4 +460,4 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Internal server error' })
 })
 
-app.listen(PORT, () => console.log(`Server started at port ${PORT}`))
+app.listen(PORT, () => console.log(`Server started at port ${PORT}`)) 

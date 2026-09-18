@@ -13,7 +13,8 @@ CREATE TABLE users (
     banner_url TEXT,
     bio TEXT,
     password TEXT NOT NULL,
-    role VARCHAR(50) NOT NULL DEFAULT 'user'
+    role VARCHAR(50) NOT NULL DEFAULT 'user',
+    quick_status TEXT
 );
 
 CREATE TABLE tokens (

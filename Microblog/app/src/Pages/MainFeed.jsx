@@ -26,6 +26,7 @@ const MainFeed = () => {
             username={post.username}
             photo={post.image_url}
             public_id={post.public_id}
+            created_at={post.created_at}
           />) : <p className={style.emptyDatabase}>No posts exist yet</p>}
       </div>
 

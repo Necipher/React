@@ -32,6 +32,7 @@ const UsersPosts = () => {
                         username={user.username}
                         photo={post.image_url}
                         public_id={post.public_id}
+                        created_at={post.created_at}
                     />)
                 :
                 <div>
