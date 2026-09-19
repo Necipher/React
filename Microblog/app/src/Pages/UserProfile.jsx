@@ -13,7 +13,6 @@ const UserProfile = () => {
         fetchProfile(handle)
     }, [handle])
 
-    console.log(profile)
     return (
         <div className={style.layout}>
             <UserProfileTopBar />

@@ -421,7 +421,7 @@ app.patch('/user/post/:postId', protect, async (req, res, next) => {
 })
 
 // Get Post
-app.get('/user/post/:postId', async (req, res, next) => {
+app.get('/user/post/:postId', optionalAuth, async (req, res, next) => {
     try {
         const postId = req.params.postId;
         const data = await pool.query(`
@@ -437,8 +437,8 @@ app.get('/user/post/:postId', async (req, res, next) => {
                 users.handle 
             FROM posts 
             LEFT JOIN users ON users.id = posts.user_id
-            WHERE public_id = $1 
-            ORDER BY id DESC
+            WHERE posts.public_id = $1 
+            ORDER BY posts.id DESC
             `, [postId]);
         if (!data.rows[0]) {
             return res.status(404).json({ message: 'Post not found' })

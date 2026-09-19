@@ -49,7 +49,13 @@ function usePost() {
                 setError(data.message || 'Failed to load posts')
                 return false
             }
-            setPostsFeed(prev => [...prev, ...data]);
+            setPostsFeed(prev => {
+                const knownIds = new Set(prev.map(p => p.public_id));
+                return [...prev, ...data.filter(p => !knownIds.has(p.public_id))]
+            });
+
+
+
             setOffset(prev => prev + limit);
             return true
         } catch (err) {
@@ -71,8 +77,28 @@ function usePost() {
         return data;
     }
 
+    async function fetchAPost({ postId }) {
+        setLoading(true);
+        setError(null);
 
-    return { loading, error, createPost, fetchPosts, postsFeed, fetchUserPosts };
+        try {
+            const res = await fetchWithOptionalAuth(`http://localhost:5004/user/post/${postId}`, { method: 'GET' });
+            const data = await res.json();
+            if (!res.ok) {
+                setError(data.message || 'Failed to load post');
+                return false;
+            }
+
+            return data.data;
+        } catch (err) {
+            console.error(err);
+            return false
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    return { loading, error, createPost, fetchPosts, postsFeed, fetchUserPosts, fetchAPost };
 
 }
 
