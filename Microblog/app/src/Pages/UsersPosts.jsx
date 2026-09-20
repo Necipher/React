@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router'
-import usePost from '../hooks/usePost'
+import { usePostContext } from '../context/PostContext'
 import style from './UsersPosts.module.css'
 import Post from '../Components/Post'
 
 const UsersPosts = () => {
     const { handle } = useParams()
-    const { fetchUserPosts } = usePost();
+    const { fetchUserPosts } = usePostContext();
     const [user, setUser] = useState()
     const [userPosts, setUserPosts] = useState([])
     const display = userPosts?.length > 0 ? 'layoutTrue' : 'layout'

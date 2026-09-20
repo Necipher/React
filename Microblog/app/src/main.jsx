@@ -20,6 +20,7 @@ import UserFollowing from './Pages/UserFollowing'
 import UserMedia from './Pages/UserMedia'
 //Context
 import { AuthProvider } from './context/AuthContext'
+import { PostProvider } from './context/PostContext'
 
 const router = createBrowserRouter([
   {
@@ -63,10 +64,12 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById('root')).render(
-  
+
   <StrictMode>
     <AuthProvider>
-      <RouterProvider router={router} />
+      <PostProvider>
+        <RouterProvider router={router} />
+      </PostProvider>
     </AuthProvider>
   </StrictMode>
 )

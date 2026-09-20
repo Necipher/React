@@ -6,6 +6,8 @@
     grid-template-columns: 1fr 14fr;
     width: 100%;
     border: 0.5px solid var(--border);
+
+    position: relative;
 }
 
 .postLayout:hover {
@@ -107,7 +109,48 @@
 }
 
 .linkReset {
-    display: contents; /* or flex/block depending on what you need */
+    display: contents;
+    /* or flex/block depending on what you need */
     text-decoration: none;
     color: inherit;
+}
+
+.optionButton {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 0.5rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 20px;
+    border: 0.5px solid lightgrey;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    background-color: transparent;
+    color: lightgrey;
+}
+
+.optionButton:hover {
+    background-color: grey;
+}
+
+.optionMenu {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.optionMenu button {
+    border: none;
+    font-size: 0.8rem;
+}
+
+.optionMenu button:hover {
+    background-color: lightgrey;
 }

@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('node:crypto');
 
 const generateAccessToken = (payload) => {
     return jwt.sign(
@@ -10,7 +11,7 @@ const generateAccessToken = (payload) => {
 
 const generateRefreshToken = (payload) => {
     return jwt.sign(
-        { payload },
+        { payload, jti: crypto.randomUUID() },
         process.env.REFRESH_TOKEN_SECRET,
         { expiresIn: process.env.REFRESH_TOKEN_EXPIRES }
     )

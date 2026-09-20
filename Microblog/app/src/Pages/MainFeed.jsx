@@ -2,10 +2,11 @@ import { useEffect } from 'react'
 import Post from '../Components/Post'
 import TopBar from '../Components/TopBar'
 import style from './MainFeed.module.css'
-import usePost from '../hooks/usePost'
+import { usePostContext } from '../context/PostContext'
+
 
 const MainFeed = () => {
-  const { postsFeed, loading, error, fetchPosts, createPost } = usePost();
+  const { postsFeed, loading, error, fetchPosts, createPost } = usePostContext();
 
   useEffect(() => {
     fetchPosts();

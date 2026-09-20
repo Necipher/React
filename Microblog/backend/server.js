@@ -430,6 +430,7 @@ app.get('/user/post/:postId', optionalAuth, async (req, res, next) => {
                 posts.content,
                 posts.image_url,
                 posts.created_at,
+                users.public_id AS author_public_id,
                 users.username,
                 users.first_name,
                 users.last_name,
@@ -444,7 +445,10 @@ app.get('/user/post/:postId', optionalAuth, async (req, res, next) => {
             return res.status(404).json({ message: 'Post not found' })
         }
 
-        res.status(200).json({ 'data': data.rows[0] });
+        const { author_public_id, ...post } = data.rows[0];
+        post.isOwner = req.user?.payload === author_public_id;
+
+        res.status(200).json({ 'data': post });
 
     } catch (err) {
         next(err)
