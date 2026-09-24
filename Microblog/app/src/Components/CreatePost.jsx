@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import style from './CreatePost.module.css'
-import profile from '../assets/profile.jpeg'
 import { useAuthContext } from '../context/AuthContext'
 
 const CreatePost = ({ createPost, error, loading }) => {

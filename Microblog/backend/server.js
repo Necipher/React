@@ -76,7 +76,7 @@ app.post('/auth/register', async (req, res, next) => {
         res.json({
             'message': `User ${username} sucessfully registered`,
             'accessToken': accessToken,
-            'user': { 'id': public_id, username, first_name, last_name, email, handle: `@${storedHandle}`, avatar_url, bio, quick_status }
+            'user': { 'id': public_id, username, first_name, last_name, email, handle: storedHandle, avatar_url, bio, quick_status }
         })
     } catch (err) {
         next(err);
@@ -132,7 +132,7 @@ app.post('/auth/login', async (req, res, next) => {
                 username: user.rows[0].username,
                 first_name: user.rows[0].first_name,
                 last_name: user.rows[0].last_name,
-                handle: '@' + user.rows[0].handle,
+                handle: user.rows[0].handle,
                 avatar_url: user.rows[0].avatar_url,
                 banner_url: user.rows[0].banner_url,
                 bio: user.rows[0].bio,
@@ -192,21 +192,21 @@ app.post('/auth/refresh', async (req, res, next) => {
             users.quick_status 
             FROM users 
             WHERE public_id = $1
-            `, [decoded.payload]);
+            `, [public_id]);
 
         if (!user.rows[0]) {
             return res.status(401).json({ 'message': 'User does not exist' })
         }
-        const result = await pool.query(`SELECT tokens.token FROM tokens WHERE token = $1 AND user_id = $2`, [token, user.rows[0].id]);
-        if (!result.rows[0]) {
-            return res.status(403).json({ 'message': 'Token access revoken' })
+
+        const result = await pool.query('DELETE FROM tokens WHERE token = $1 AND user_id = $2', [token, user.rows[0].id]);
+        if (result.rowCount === 0) {
+            return res.status(403).json({ message: 'Token access revoked' })
         }
 
         const newAccessToken = generateAccessToken(public_id);
         const newRefreshToken = generateRefreshToken(public_id);
         const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-        await pool.query('DELETE FROM tokens WHERE token = $1', [result.rows[0].token])
         await pool.query('INSERT INTO tokens (user_id, token, expires) VALUES ($1, $2, $3)', [user.rows[0].id, newRefreshToken, expiresAt]);
 
         res.cookie('refreshToken', newRefreshToken, { httpOnly: true });
@@ -217,7 +217,7 @@ app.post('/auth/refresh', async (req, res, next) => {
                 username: user.rows[0].username,
                 first_name: user.rows[0].first_name,
                 last_name: user.rows[0].last_name,
-                handle: '@' + user.rows[0].handle,
+                handle: user.rows[0].handle,
                 avatar_url: user.rows[0].avatar_url,
                 banner_url: user.rows[0].banner_url,
                 bio: user.rows[0].bio,
@@ -331,7 +331,7 @@ app.get('/userPosts/:handle', optionalAuth, async (req, res, next) => {
     }
 })
 
-// Get Profile function
+// Get Profile 
 app.get('/:handle', optionalAuth, async (req, res, next) => {
     try {
         const extractedHandle = req.params.handle;
@@ -361,7 +361,7 @@ app.get('/:handle', optionalAuth, async (req, res, next) => {
                 username: user.rows[0].username,
                 first_name: user.rows[0].first_name,
                 last_name: user.rows[0].last_name,
-                handle: '@' + user.rows[0].handle,
+                handle: user.rows[0].handle,
                 avatar_url: user.rows[0].avatar_url,
                 banner_url: user.rows[0].banner_url,
                 bio: user.rows[0].bio,

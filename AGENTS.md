@@ -46,8 +46,10 @@ No test suites, no typecheck, no CI. `npm run lint` in `app/` dirs is the only a
 ## Code style
 - Prefer simple, readable solutions over clever ones. If a junior dev
   couldn't follow it in one read, simplify it.
-- No premature abstraction. Don't build for hypothetical future needs —
-  solve the problem in front of you.
+- Build for future needs but no over-engineering.
+- Over-engineering is worse than under-engineering in this codebase.
+  When in doubt, pick the simpler option — it's easier to add structure
+  later than to remove it.
 - Functions do one thing. If a function needs a comment explaining its
   sections, split it.
 - Minimal comments — code should be self-explanatory through naming.
@@ -57,9 +59,6 @@ No test suites, no typecheck, no CI. `npm run lint` in `app/` dirs is the only a
 - Match existing patterns in the codebase rather than introducing new ones.
 - Flat is better than nested. Prefer early returns / guard clauses over
   deep if/else nesting.
-  - Over-engineering is worse than under-engineering in this codebase.
-  When in doubt, pick the simpler option — it's easier to add structure
-  later than to remove it.
 - After finishing a change, do a deletion pass: read every line you added
   and ask "does this actually need to exist?" Remove dead code, redundant
   checks, unnecessary variables, and logic that duplicates what already

@@ -11,15 +11,15 @@ const QuickProfile = () => {
         <div className={style.layout}>
 
             <section className={style.pictureCage}>
-                <Link to={`/${user.handle.slice(1)}`}>
+                <Link to={`/${user.handle}`}>
                     <img src={user.avatar_url} className={style.profilePic} />
                 </Link>
             </section>
 
             <section className={style.identificatorCage}>
-                <Link to={`/${user.handle.slice(1)}`}>
+                <Link to={`/${user.handle}`}>
                     <h1 className={style.nickname}>{user.username}</h1>
-                    <h1 className={style.handle}>{user.handle}</h1>
+                    <h1 className={style.handle}>{`@${user.handle}`}</h1>
                 </Link>
                 <h1 className={style.bio}>{user.bio}</h1>
             </section>

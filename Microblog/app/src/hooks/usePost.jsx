@@ -24,11 +24,10 @@ function usePost() {
                 setError(data.message || 'Failed to create post');
                 return false
             }
-            // setPostsFeed here should force a refresh of the feed so the new post created automaticaly appears on top of the feed without needing a refresh but it DOESNT WORK
+
             setPostsFeed(prev => [{ ...user, ...data.post }, ...prev])
             return { ...user, ...data.post }
-
-
+            
         } catch (err) {
             console.error(err);
             setError('Network error');
@@ -98,7 +97,58 @@ function usePost() {
         }
     }
 
-    return { loading, error, createPost, fetchPosts, postsFeed, fetchUserPosts, fetchAPost };
+    async function deleteAPost({ postId }) {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const res = await fetchWithAuth(`http://localhost:5004/user/post/${postId}`, { method: 'DELETE' })
+            const data = await res.json();
+            if (!res.ok) {
+                setError(data.error || 'Failed to delete');
+                return false
+            }
+
+            setPostsFeed(prev => prev.filter(a => a.public_id !== postId))
+            return data
+        } catch (err) {
+            console.error(err)
+            return false
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function updateAPost({ postId, updatedContent }) {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await fetchWithAuth(`http://localhost:5004/user/post/${postId}`, { method: 'PATCH', body: JSON.stringify({updatedContent}) });
+            const data = await res.json();
+            if (!res.ok) {
+                setError(data.error || 'Message update failed');
+                return false
+            }
+            return data
+        } catch (err) {
+            console.error(err);
+            return false
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return {
+        postsFeed,
+        loading,
+        error,
+        createPost,
+        fetchPosts,
+        fetchUserPosts,
+        fetchAPost,
+        deleteAPost,
+        updateAPost
+    };
 
 }
 

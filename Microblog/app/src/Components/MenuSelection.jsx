@@ -10,7 +10,7 @@ const Selection = () => {
             <h2><NavLink className={({ isActive }) => isActive ? style.active : style.inactive} to='/'>HOME</NavLink></h2>
             <h2><NavLink className={({ isActive }) => isActive ? style.active : style.inactive} to='/directmessages'>DIRECT MESSAGES</NavLink></h2>
             <h2><NavLink className={({ isActive }) => isActive ? style.active : style.inactive} to='/notifications'>NOTIFICATIONS</NavLink></h2>
-            <h2><NavLink className={({ isActive }) => isActive ? style.active : style.inactive} to={user ? `/${user.handle.slice(1)}` : '/'}>PROFILE</NavLink></h2>
+            <h2><NavLink className={({ isActive }) => isActive ? style.active : style.inactive} to={user ? `/${user.handle}` : '/'}>PROFILE</NavLink></h2>
             <h2><NavLink className={({ isActive }) => isActive ? style.active : style.inactive} to='/settings'>SETTINGS</NavLink></h2>
         </div>
     )

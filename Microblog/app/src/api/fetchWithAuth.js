@@ -1,22 +1,28 @@
 let accessToken = null;
+let refreshPromise = null;
 export const setAccessToken = (token) => accessToken = token;
 export const getAccessToken = () => accessToken
 
-export const tryRefresh = async () => {
-    try {
-        const res = await fetch('http://localhost:5004/auth/refresh', {
-            method: 'POST',
-            credentials: 'include'
-        });
-        if (res.ok) {
-            const data = await res.json();
-            setAccessToken(data.accessToken);
-            return true;
-        }
-        return false
-    } catch {
-        return false;
+export const tryRefresh = () => {
+    if (!refreshPromise) {
+        refreshPromise = (async () => {
+            try {
+                const res = await fetch('http://localhost:5004/auth/refresh', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                if (!res.ok) return null;
+                const data = await res.json();
+                setAccessToken(data.accessToken);
+                return data
+            } catch {
+                return null;
+            } finally {
+                refreshPromise = null;
+            }
+        })();
     }
+    return refreshPromise
 };
 
 export const fetchWithAuth = async (url, options = {}) => {

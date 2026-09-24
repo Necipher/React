@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { setAccessToken } from "../api/fetchWithAuth"
+import { setAccessToken, tryRefresh } from "../api/fetchWithAuth"
 
 const useAuth = () => {
     const [user, setUser] = useState(null);
@@ -9,15 +9,10 @@ const useAuth = () => {
     const [initializing, setInitializing] = useState(true);
 
     useEffect(() => {
-        async function refreshSession() {
+        (async () => {
             try {
-                const res = await fetch('http://localhost:5004/auth/refresh', {
-                    method: 'POST',
-                    credentials: 'include',
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setAccessToken(data.accessToken);
+                const data = await tryRefresh();
+                if (data) {
                     setUser(data.user);
                 }
             } catch (err) {
@@ -25,8 +20,7 @@ const useAuth = () => {
             } finally {
                 setInitializing(false);
             }
-        }
-        refreshSession();
+        })();
     }, [])
 
     async function registerNewUser(handle, username, first_name, last_name, email, password) {
