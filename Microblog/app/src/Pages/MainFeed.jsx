@@ -12,7 +12,6 @@ const MainFeed = () => {
     fetchPosts();
   }, [])
 
-
   return (
     <div className={style.layout}>
       <TopBar createPost={createPost} error={error} loading={loading} />
@@ -28,6 +27,7 @@ const MainFeed = () => {
             photo={post.image_url}
             public_id={post.public_id}
             created_at={post.created_at}
+            isOwner={post.isOwner}
           />) : <p className={style.emptyDatabase}>No posts exist yet</p>}
       </div>
 

@@ -27,7 +27,7 @@ function usePost() {
 
             setPostsFeed(prev => [{ ...user, ...data.post }, ...prev])
             return { ...user, ...data.post }
-            
+
         } catch (err) {
             console.error(err);
             setError('Network error');
@@ -87,8 +87,7 @@ function usePost() {
                 setError(data.message || 'Failed to load post');
                 return false;
             }
-
-            return data.data;
+            return data;
         } catch (err) {
             console.error(err);
             return false
@@ -123,7 +122,7 @@ function usePost() {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetchWithAuth(`http://localhost:5004/user/post/${postId}`, { method: 'PATCH', body: JSON.stringify({updatedContent}) });
+            const res = await fetchWithAuth(`http://localhost:5004/user/post/${postId}`, { method: 'PATCH', body: JSON.stringify({ updatedContent }) });
             const data = await res.json();
             if (!res.ok) {
                 setError(data.error || 'Message update failed');

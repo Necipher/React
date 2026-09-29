@@ -1,10 +1,9 @@
 .postLayout {
-    width: 100%;
+    width: var(--mid-column-width);
     height: auto;
 
     display: grid;
     grid-template-columns: 1fr 14fr;
-    width: 100%;
     border: 0.5px solid var(--border);
 
     position: relative;

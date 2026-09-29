@@ -38,8 +38,6 @@ export const fetchWithAuth = async (url, options = {}) => {
 
     if (res.status === 401) {
         const refreshed = await tryRefresh();
-
-
         if (refreshed) {
             return fetch(url, {
                 ...options,
@@ -52,6 +50,7 @@ export const fetchWithAuth = async (url, options = {}) => {
             });
         } else {
             window.location.href = '/login'
+            return res
         }
     }
 
@@ -59,6 +58,7 @@ export const fetchWithAuth = async (url, options = {}) => {
 }
 
 export const fetchWithOptionalAuth = async (url, options = {}) => {
+    await tryRefresh();
     const head = accessToken ? { ...options.headers, 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` } : { ...options.headers, 'Content-Type': 'application/json' }
 
     const res = await fetch(url, {

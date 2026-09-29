@@ -183,7 +183,7 @@ app.post('/auth/refresh', async (req, res, next) => {
             users.id,
             users.public_id,
             users.username,
-            users.first_name,
+            users.first_name,        
             users.last_name,
             users.handle,
             users.avatar_url,
@@ -257,7 +257,6 @@ app.post('/user/post', protect, async (req, res, next) => {
 // Fetches all posts from database based on provided limits
 app.get('/home', optionalAuth, async (req, res, next) => {
     try {
-        const userId = req.user?.payload
         const { limit, offset } = req.query
 
         const safeLimit = Math.max(0, Math.min(Number(limit) || 10, 50));
@@ -272,6 +271,7 @@ app.get('/home', optionalAuth, async (req, res, next) => {
             posts.created_at, 
             users.avatar_url, 
             users.handle, 
+            users.public_id AS author_public_id,
             users.username
             FROM posts 
             LEFT JOIN users ON users.id = posts.user_id 
@@ -279,7 +279,9 @@ app.get('/home', optionalAuth, async (req, res, next) => {
             LIMIT $1 OFFSET $2
             `, [safeLimit, safeOffset]);
 
-        res.json(data.rows)
+        const posts = data.rows.map(post => ({ ...post, isOwner: req.user?.payload === post.author_public_id }))
+
+        res.json(posts)
     } catch (err) {
         next(err)
     }
@@ -293,6 +295,7 @@ app.get('/userPosts/:handle', optionalAuth, async (req, res, next) => {
         const user = await pool.query(`
             SELECT 
             users.id,
+            users.public_id,
             users.username,
             users.first_name,
             users.last_name,
@@ -426,6 +429,7 @@ app.get('/user/post/:postId', optionalAuth, async (req, res, next) => {
         const postId = req.params.postId;
         const data = await pool.query(`
             SELECT 
+                posts.id,
                 posts.public_id,
                 posts.content,
                 posts.image_url,
@@ -445,10 +449,31 @@ app.get('/user/post/:postId', optionalAuth, async (req, res, next) => {
             return res.status(404).json({ message: 'Post not found' })
         }
 
+        const replies = await pool.query(`
+            SELECT 
+                posts.id,
+                posts.public_id,
+                posts.user_id,
+                posts.parent_id,
+                posts.content,
+                posts.image_url,
+                posts.created_at,
+                users.public_id AS author_public_id,
+                users.username,
+                users.first_name,
+                users.last_name,
+                users.avatar_url,
+                users.handle
+            FROM posts
+            LEFT JOIN users ON users.id = posts.user_id
+            WHERE posts.parent_id = (SELECT id FROM posts WHERE public_id = $1)
+            ORDER BY posts.id DESC
+            `, [postId])
+
         const { author_public_id, ...post } = data.rows[0];
         post.isOwner = req.user?.payload === author_public_id;
 
-        res.status(200).json({ 'data': post });
+        res.status(200).json({ 'post': post, 'replies': replies.rows });
 
     } catch (err) {
         next(err)

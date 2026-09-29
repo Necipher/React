@@ -10,7 +10,7 @@ const Post = ({ avatar_url, content, handle, username, photo, public_id, created
     const { deleteAPost, updateAPost } = usePostContext();
     // Toggles
     const [isOptionMenuOn, setisOptionMenuOn] = useState(false);
-    const [isEditOn, setIsEditOn] = useState(false);
+    const [isEditOn, setIsEditOn] = useState(false); 
     // Variables
     const time = new Date(created_at).toLocaleString(undefined, { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' })
 
