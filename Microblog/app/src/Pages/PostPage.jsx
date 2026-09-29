@@ -9,14 +9,16 @@ const PostPage = () => {
   const { fetchAPost, loading, error } = usePostContext();
   const [userPost, setUserPost] = useState(null);
   const [replies, setReplies] = useState(null);
+  const [reload, setReload] = useState(false)
 
   useEffect(() => {
     (async () => {
       const data = await fetchAPost(params);
       setUserPost(data.post);
       setReplies(data.replies);
+      if (reload) setReload(false)
     })()
-  }, [params.postId])
+  }, [params.postId, reload])
 
   if (loading) return <p>Fetching files...</p>
   if (error) return <p>{error}</p>
@@ -36,10 +38,17 @@ const PostPage = () => {
         created_at={userPost.created_at}
         isOwner={userPost.isOwner}
       />
-      <CreatePost />
+      <CreatePost 
+      parentId={params.postId}
+      placeholder="Write your reply."
+      buttonLabel="REPLY"
+      autoFocus={false}
+      reload={setReload}
+      />
       <section>
         {replies?.map(reply => {
          return <Post 
+         key={reply.public_id}
          content={reply.content}
          avatar_url={reply.avatar_url}
          handle={reply.handle}

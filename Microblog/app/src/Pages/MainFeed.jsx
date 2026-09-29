@@ -6,7 +6,7 @@ import { usePostContext } from '../context/PostContext'
 
 
 const MainFeed = () => {
-  const { postsFeed, loading, error, fetchPosts, createPost } = usePostContext();
+  const { postsFeed, loading, error, fetchPosts } = usePostContext();
 
   useEffect(() => {
     fetchPosts();
@@ -14,7 +14,7 @@ const MainFeed = () => {
 
   return (
     <div className={style.layout}>
-      <TopBar createPost={createPost} error={error} loading={loading} />
+      <TopBar />
 
       <div>
         {postsFeed.length > 0 ? postsFeed.map(post =>

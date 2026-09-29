@@ -10,22 +10,21 @@ function usePost() {
     const [limit, setLimit] = useState(10);
     const [offset, setOffset] = useState(0);
 
-    async function createPost(content) {
+    async function createPost({ content, parentId = null }) {
         setLoading(true);
         setError(null);
 
         try {
             const res = await fetchWithAuth('http://localhost:5004/user/post', {
                 method: 'POST',
-                body: JSON.stringify({ content })
+                body: JSON.stringify({ content, parentId })
             })
             const data = await res.json();
             if (!res.ok) {
                 setError(data.message || 'Failed to create post');
                 return false
             }
-
-            setPostsFeed(prev => [{ ...user, ...data.post }, ...prev])
+            if (!parentId) setPostsFeed(prev => [{ ...user, ...data.post }, ...prev])
             return { ...user, ...data.post }
 
         } catch (err) {

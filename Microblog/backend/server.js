@@ -229,10 +229,10 @@ app.post('/auth/refresh', async (req, res, next) => {
     }
 })
 
-// Function for adding a new post
+// Adding a new post
 app.post('/user/post', protect, async (req, res, next) => {
     try {
-        const { content } = req.body;
+        const { content, parentId } = req.body;
 
         if (typeof content !== 'string' || content.trim() === '') {
             return res.status(400).json({ 'message': 'Message field is empty' });
@@ -245,8 +245,16 @@ app.post('/user/post', protect, async (req, res, next) => {
         if (!user.rows[0]) {
             return res.status(400).json({ 'message': 'User not found' })
         }
+
+        let parentPostId = null
+
+        if (parentId != null) {
+           const mainMessageId = await pool.query(`SELECT posts.id FROM posts WHERE public_id = $1`,[parentId])
+           parentPostId = mainMessageId.rows[0].id
+        }
+
         const userId = user.rows[0].id;
-        const result = await pool.query('INSERT INTO posts (user_id, content) VALUES ($1, $2) RETURNING public_id, content, created_at', [userId, content]);
+        const result = await pool.query('INSERT INTO posts (user_id, content, parent_id) VALUES ($1, $2, $3) RETURNING public_id, content, created_at', [userId, content, parentPostId]);
 
         res.status(200).json({ 'message': 'Post created', post: result.rows[0] })
     } catch (err) {
@@ -275,6 +283,7 @@ app.get('/home', optionalAuth, async (req, res, next) => {
             users.username
             FROM posts 
             LEFT JOIN users ON users.id = posts.user_id 
+            WHERE posts.parent_id IS NULL
             ORDER BY posts.id DESC 
             LIMIT $1 OFFSET $2
             `, [safeLimit, safeOffset]);

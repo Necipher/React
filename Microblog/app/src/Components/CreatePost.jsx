@@ -1,40 +1,45 @@
 import { useState, useEffect } from 'react'
 import style from './CreatePost.module.css'
 import { useAuthContext } from '../context/AuthContext'
+import { usePostContext } from '../context/PostContext'
 
-const CreatePost = ({ createPost, error, loading }) => {
-    const {user} = useAuthContext();
+const CreatePost = ({ reload = null, parentId = null, placeholder = 'What is new?', buttonLabel = 'POST', autoFocus = true, error, loading }) => {
+    const { createPost } = usePostContext();
+    const { user } = useAuthContext();
     const [content, setContent] = useState('')
-    const [posted, setPosted] = useState(false)
+    const [status, setStatus] = useState(false)
 
     useEffect(() => {
-        if (!posted) return
-        const timer = setTimeout(() => setPosted(false), 4000);
+        if (!status) return
+        const timer = setTimeout(() => setStatus(false), 4000);
         return () => clearTimeout(timer)
-    }, [posted])
+    }, [status])
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        const success = await createPost({ 'content': content, 'parentId': parentId });
+        if (success) {
+            setContent('');
+            setStatus(true)
+            reload?.(true)
+        }
+    }
 
     return (
         <form
-            onSubmit={async (e) => {
-                e.preventDefault()
-                const success = await createPost(content)
-                if (success) {
-                    setContent('')
-                    setPosted(true)
-                }
-            }}
+            onSubmit={handleSubmit}
             className={style.noteWrapper}>
             <img src={user.avatar_url} className={style.profilePicture} />
-            <input autoFocus maxLength={280} type='text' placeholder='What is new?' value={content} onChange={(e) => setContent(e.target.value)} />
+            <input autoFocus={autoFocus} maxLength={280} type='text' placeholder={placeholder} value={content} onChange={(e) => setContent(e.target.value)} />
 
             <section style={{ marginRight: '10px' }}>
-                {posted && <p className={style.message}>Message created</p>}
+                {status && <p className={style.message}>Message created</p>}
                 {error && <p className={style.message}>{error}</p>}
             </section>
 
             <section style={{ marginRight: '10px' }}>
                 <p className={style.characterCount}>{content.length}/280</p>
-                <button className={style.postButton}>POST</button>
+                <button className={style.postButton}>{buttonLabel}</button>
             </section>
 
         </form>
