@@ -3,7 +3,7 @@ import style from './CreatePost.module.css'
 import { useAuthContext } from '../context/AuthContext'
 import { usePostContext } from '../context/PostContext'
 
-const CreatePost = ({ reload = null, parentId = null, placeholder = 'What is new?', buttonLabel = 'POST', autoFocus = true, error, loading }) => {
+const CreatePost = ({ onCreated, parentId = null, placeholder = 'What is new?', buttonLabel = 'POST', autoFocus = true, error, loading }) => {
     const { createPost } = usePostContext();
     const { user } = useAuthContext();
     const [content, setContent] = useState('')
@@ -21,12 +21,14 @@ const CreatePost = ({ reload = null, parentId = null, placeholder = 'What is new
         if (success) {
             setContent('');
             setStatus(true)
-            reload?.(true)
+            success.isOwner = true;
+            onCreated?.(success)
         }
     }
 
     return (
         <form
+            style={{borderBottom: '0.5px solid lightgrey'}}
             onSubmit={handleSubmit}
             className={style.noteWrapper}>
             <img src={user.avatar_url} className={style.profilePicture} />

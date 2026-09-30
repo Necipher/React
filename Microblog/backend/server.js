@@ -248,8 +248,11 @@ app.post('/user/post', protect, async (req, res, next) => {
 
         let parentPostId = null
 
-        if (parentId != null) {
+        if (parentId === 'string' && parentId != '') {
            const mainMessageId = await pool.query(`SELECT posts.id FROM posts WHERE public_id = $1`,[parentId])
+           if (!mainMessageId.rows[0]) {
+            return res.status(404).json({message: 'Original post not found'})
+           }
            parentPostId = mainMessageId.rows[0].id
         }
 
@@ -482,7 +485,11 @@ app.get('/user/post/:postId', optionalAuth, async (req, res, next) => {
         const { author_public_id, ...post } = data.rows[0];
         post.isOwner = req.user?.payload === author_public_id;
 
-        res.status(200).json({ 'post': post, 'replies': replies.rows });
+        const repliesPosts = replies.rows.map(reply => {
+            return {...reply, isOwner: req.user?.payload === reply.author_public_id}
+        })
+
+        res.status(200).json({ 'post': post, 'replies': repliesPosts });
 
     } catch (err) {
         next(err)
