@@ -68,7 +68,7 @@ const Post = ({ avatar_url, content, handle, username, photo, public_id, created
             }
 
             <div className={style.operations}>
-                <button className={style.operationButton}>A</button>
+                <button className={style.operationButton}>{time}</button>
                 <button className={style.operationButton}>B</button>
                 <button className={style.operationButton}>C</button>
                 <button className={style.operationButton}>D</button>

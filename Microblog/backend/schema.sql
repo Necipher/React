@@ -33,3 +33,10 @@ CREATE TABLE posts (
     image_url TEXT,
     created_at TIMESTAMP DEFAULT now()
 );
+
+CREATE TABLE likes (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT now(),
+    PRIMARY KEY (user_id, post_id)
+)

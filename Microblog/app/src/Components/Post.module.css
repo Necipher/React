@@ -91,6 +91,7 @@
 }
 
 .operationButton {
+    font-size: 0.7rem;
     border: none;
     background: none;
     color: var(--text-3);
