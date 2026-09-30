@@ -501,7 +501,22 @@ app.post('/user/post/liked', protect, async (req, res, next) => {
     try {
         const logedUser = req.user?.payload;
         const { postId } = req.body;
-        
+
+        if (!postId) return res.status(400).json({ message: 'A post id is required' })
+
+        const { rows } = await pool.query(`
+            SELECT
+                (SELECT id FROM users WHERE public_id = $1) AS user_id,
+                (SELECT id from posts WHERE public_id = $2) AS post_id;
+        `, [logedUser, postId])
+
+        const { user_id, post_id } = rows[0]
+
+        if (user_id === null) return res.status(404).json({ message: 'User not found' });
+        if (post_id === null) return res.status(404).json({ message: 'Post not found' });
+
+        await pool.query(`INSERT INTO likes (user_id, post_id) VALUES ($1, $2)`, [user_id, post_id])
+        res.status(200).json({ message: 'Post successfully liked' });
 
     } catch (err) {
         next(err)
