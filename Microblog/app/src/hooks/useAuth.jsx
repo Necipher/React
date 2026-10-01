@@ -79,16 +79,21 @@ const useAuth = () => {
 
     async function logout() {
         try {
-
-            await fetch('http://localhost:5004/auth/logout', {
+            const res = await fetch('http://localhost:5004/auth/logout', {
                 method: 'POST',
                 credentials: 'include'
             });
+            const data = await res.json();
+            if (!res.ok) {
+                setError(data.message || 'Logout failed')
+            }
+            return true
         } catch (err) {
             console.error('logout fetch threw:', err);
         } finally {
             setAccessToken(null);
             setUser(null)
+            window.location.replace('/');
         }
     }
 
