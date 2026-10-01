@@ -136,6 +136,45 @@ function usePost() {
         }
     }
 
+    async function likeAPost({ postId }) {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const res = await fetchWithAuth(`http://localhost:5004/user/post/${postId}/like`, { method: 'POST' })
+            const data = await res.json();
+            if (!res.ok) {
+                setError(data.message || 'Unable to like post, server error')
+                return false
+            }
+            return data
+        } catch (err) {
+            console.error(err);
+            return false
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function deleteALike({ postId }) {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await fetchWithAuth(`http://localhost:5004/user/post/${postId}/like`, { method: 'DELETE' })
+            const data = await res.json();
+            if (!res.ok) {
+                setError(data.message || 'Unable to like post, server error')
+                return false
+            }
+            return data
+        } catch (err) {
+            console.error(err);
+            return false
+        } finally {
+            setLoading(false)
+        }
+    }
+
     return {
         postsFeed,
         loading,
@@ -145,7 +184,9 @@ function usePost() {
         fetchUserPosts,
         fetchAPost,
         deleteAPost,
-        updateAPost
+        updateAPost,
+        likeAPost,
+        deleteALike
     };
 
 }

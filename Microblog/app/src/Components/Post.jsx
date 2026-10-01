@@ -4,13 +4,15 @@ import { useNavigate } from 'react-router';
 import { usePostContext } from "../context/PostContext";
 
 
-const Post = ({ avatar_url, content, handle, username, photo, public_id, created_at, isOwner }) => {
+const Post = ({ avatar_url, content, handle, username, photo, public_id, created_at, isOwner, likeCount, isLiked }) => {
     const navigate = useNavigate();
     const [localContent, setLocalContent] = useState(content)
-    const { deleteAPost, updateAPost } = usePostContext();
+    const { deleteAPost, updateAPost, likeAPost, deleteALike } = usePostContext();
+    const [nrOfLikes, setNrOfLikes] = useState(likeCount)
+    const [liked, setLiked] = useState(isLiked)
     // Toggles
     const [isOptionMenuOn, setisOptionMenuOn] = useState(false);
-    const [isEditOn, setIsEditOn] = useState(false); 
+    const [isEditOn, setIsEditOn] = useState(false);
     // Variables
     const time = new Date(created_at).toLocaleString(undefined, { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' })
 
@@ -30,6 +32,30 @@ const Post = ({ avatar_url, content, handle, username, photo, public_id, created
             }
         }, [isOpen])
     }
+
+    async function onLike(e) {
+        e.stopPropagation();
+        if (liked) return
+        const result = await likeAPost({ postId: public_id })
+        if (result) {
+            setNrOfLikes(prev => prev + 1)
+            setLiked(prev => !prev)
+        }
+    }
+
+    async function onUnlike(e) {
+        e.stopPropagation();
+        if (!liked) return;
+        const result = await deleteALike({ postId: public_id })
+        if (result && nrOfLikes > 0) {
+            setNrOfLikes(prev => prev - 1)
+            setLiked(prev => !prev)
+        }
+    }
+
+    const action = liked ? onUnlike : onLike
+
+
 
     useDismiss(isOptionMenuOn, setisOptionMenuOn);
     useDismiss(isEditOn, setIsEditOn);
@@ -69,7 +95,7 @@ const Post = ({ avatar_url, content, handle, username, photo, public_id, created
 
             <div className={style.operations}>
                 <button className={style.operationButton}>{time}</button>
-                <button className={style.operationButton}>B</button>
+                <button onClick={action} className={liked ? `${style.operationButton} ${style.active}` : `${style.operationButton}`}>Like {nrOfLikes}</button>
                 <button className={style.operationButton}>C</button>
                 <button className={style.operationButton}>D</button>
             </div>

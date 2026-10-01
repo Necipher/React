@@ -39,4 +39,4 @@ CREATE TABLE likes (
     post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT now(),
     PRIMARY KEY (user_id, post_id)
-)
+);

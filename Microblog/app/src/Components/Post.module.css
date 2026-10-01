@@ -98,8 +98,12 @@
 }
 
 .operationButton:hover {
-    color: red;
+    text-decoration: underline;
     cursor: pointer;
+}
+
+.active {
+    color: red
 }
 
 .photo {

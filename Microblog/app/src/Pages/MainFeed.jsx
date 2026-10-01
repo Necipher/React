@@ -28,6 +28,8 @@ const MainFeed = () => {
             public_id={post.public_id}
             created_at={post.created_at}
             isOwner={post.isOwner}
+            likeCount={post.like_count}
+            isLiked={post.is_liked}
           />) : <p className={style.emptyDatabase}>No posts exist yet</p>}
       </div>
 

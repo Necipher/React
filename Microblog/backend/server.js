@@ -273,7 +273,9 @@ app.get('/home', optionalAuth, async (req, res, next) => {
         const safeLimit = Math.max(0, Math.min(Number(limit) || 10, 50));
         const safeOffset = Math.max(0, Number(offset) || 0);
 
-        // Once decided, needs a personalized fetch for the loged in user, maybe his hidden messages, etc...
+        const { rows } = await pool.query(`SELECT users.id FROM users WHERE public_id = $1`, [req.user?.payload]);
+        const loggedUser = rows[0]?.id || null;
+
         const data = await pool.query(`
             SELECT 
             posts.content, 
@@ -283,13 +285,15 @@ app.get('/home', optionalAuth, async (req, res, next) => {
             users.avatar_url, 
             users.handle, 
             users.public_id AS author_public_id,
-            users.username
+            users.username,
+            (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id)::int AS like_count,
+            EXISTS (SELECT 1 FROM likes WHERE likes.post_id = posts.id AND likes.user_id = $3) AS is_liked
             FROM posts 
             LEFT JOIN users ON users.id = posts.user_id 
             WHERE posts.parent_id IS NULL
             ORDER BY posts.id DESC 
             LIMIT $1 OFFSET $2
-            `, [safeLimit, safeOffset]);
+            `, [safeLimit, safeOffset, loggedUser]);
 
         const posts = data.rows.map(post => ({ ...post, isOwner: req.user?.payload === post.author_public_id }))
 
@@ -439,6 +443,10 @@ app.patch('/user/post/:postId', protect, async (req, res, next) => {
 app.get('/user/post/:postId', optionalAuth, async (req, res, next) => {
     try {
         const postId = req.params.postId;
+
+        const { rows } = await pool.query(`SELECT users.id FROM users WHERE public_id = $1`, [req.user?.payload]);
+        const loggedUser = rows[0]?.id || null
+
         const data = await pool.query(`
             SELECT 
                 posts.id,
@@ -451,12 +459,14 @@ app.get('/user/post/:postId', optionalAuth, async (req, res, next) => {
                 users.first_name,
                 users.last_name,
                 users.avatar_url,
-                users.handle 
+                users.handle,
+                (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id)::int AS like_count,
+                EXISTS (SELECT 1 FROM likes WHERE likes.post_id = posts.id AND likes.user_id = $2) AS is_liked
             FROM posts 
             LEFT JOIN users ON users.id = posts.user_id
             WHERE posts.public_id = $1 
             ORDER BY posts.id DESC
-            `, [postId]);
+            `, [postId, loggedUser]);
         if (!data.rows[0]) {
             return res.status(404).json({ message: 'Post not found' })
         }
@@ -497,10 +507,10 @@ app.get('/user/post/:postId', optionalAuth, async (req, res, next) => {
 })
 
 // Liking a post 
-app.post('/user/post/liked', protect, async (req, res, next) => {
+app.post('/user/post/:postId/like', protect, async (req, res, next) => {
     try {
         const logedUser = req.user?.payload;
-        const { postId } = req.body;
+        const postId = req.params.postId;
 
         if (!postId) return res.status(400).json({ message: 'A post id is required' })
 
@@ -515,10 +525,29 @@ app.post('/user/post/liked', protect, async (req, res, next) => {
         if (user_id === null) return res.status(404).json({ message: 'User not found' });
         if (post_id === null) return res.status(404).json({ message: 'Post not found' });
 
-        await pool.query(`INSERT INTO likes (user_id, post_id) VALUES ($1, $2)`, [user_id, post_id])
+        await pool.query(`INSERT INTO likes (user_id, post_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`, [user_id, post_id])
         res.status(200).json({ message: 'Post successfully liked' });
 
     } catch (err) {
+        next(err)
+    }
+})
+
+// Deleting a post
+app.delete('/user/post/:postId/like', protect, async (req, res, next) => {
+    try {
+        const userId = req.user?.payload;
+        const postId = req.params.postId;
+
+        if (!userId || !postId) return res.status(400).json({ message: 'Invalid request' });
+
+        const del = await pool.query(`DELETE FROM likes WHERE likes.user_id = (SELECT id from users where public_id = $1) AND post_id = (SELECT id FROM posts where public_id = $2)`, [userId, postId])
+        if (del.rowCount === 0) {
+            return res.status(403).json({ message: 'Post is not liked' })
+        }
+        res.status(200).json({ message: 'Post successfully deleted' })
+    }
+    catch (err) {
         next(err)
     }
 })

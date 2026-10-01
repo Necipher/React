@@ -39,6 +39,8 @@ const PostPage = () => {
         public_id={userPost.public_id}
         created_at={userPost.created_at}
         isOwner={userPost.isOwner}
+        likeCount={userPost.like_count}
+        isLiked={userPost.is_liked}
       />
       {user && <CreatePost
         parentId={params.postId}
