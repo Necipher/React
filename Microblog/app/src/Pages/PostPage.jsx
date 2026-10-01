@@ -11,19 +11,17 @@ const PostPage = () => {
   const { user } = useAuthContext();
   const [userPost, setUserPost] = useState(null);
   const [replies, setReplies] = useState(null);
-  const [reload, setReload] = useState(false)
 
   useEffect(() => {
     (async () => {
       const data = await fetchAPost(params);
       setUserPost(data.post);
       setReplies(data.replies);
-      if (reload) setReload(false)
     })()
   }, [params.postId])
 
-  if (loading) return <p>Fetching files...</p>
-  if (error) return <p>{error}</p>
+  if (loading && !userPost) return <p>Fetching files...</p>
+  if (error && !userPost) return <p>{error}</p>
   if (!userPost) return <p>Post not found...</p>
 
   return (
