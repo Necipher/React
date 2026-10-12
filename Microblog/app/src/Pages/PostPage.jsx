@@ -39,6 +39,7 @@ const PostPage = () => {
         isOwner={userPost.isOwner}
         likeCount={userPost.like_count}
         isLiked={userPost.is_liked}
+        replyCount={userPost.reply_count}
       />
       {user && <CreatePost
         parentId={params.postId}
@@ -59,6 +60,8 @@ const PostPage = () => {
             public_id={reply.public_id}
             created_at={reply.created_at}
             isOwner={reply.isOwner}
+            likeCount={reply.like_count}
+            isLiked={reply.is_liked}
           />
         })}
       </section>

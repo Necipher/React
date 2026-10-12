@@ -248,7 +248,7 @@ app.post('/user/post', protect, async (req, res, next) => {
 
         let parentPostId = null
 
-        if (parentId === 'string' && parentId != '') {
+        if (typeof parentId === 'string' && parentId != '') {
             const mainMessageId = await pool.query(`SELECT posts.id FROM posts WHERE public_id = $1`, [parentId])
             if (!mainMessageId.rows[0]) {
                 return res.status(404).json({ message: 'Original post not found' })
@@ -287,7 +287,8 @@ app.get('/home', optionalAuth, async (req, res, next) => {
             users.public_id AS author_public_id,
             users.username,
             (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id)::int AS like_count,
-            EXISTS (SELECT 1 FROM likes WHERE likes.post_id = posts.id AND likes.user_id = $3) AS is_liked
+            EXISTS (SELECT 1 FROM likes WHERE likes.post_id = posts.id AND likes.user_id = $3) AS is_liked,
+            (SELECT COUNT(*) FROM posts AS r WHERE r.parent_id = posts.id) AS reply_count
             FROM posts 
             LEFT JOIN users ON users.id = posts.user_id 
             WHERE posts.parent_id IS NULL
@@ -461,7 +462,8 @@ app.get('/user/post/:postId', optionalAuth, async (req, res, next) => {
                 users.avatar_url,
                 users.handle,
                 (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id)::int AS like_count,
-                EXISTS (SELECT 1 FROM likes WHERE likes.post_id = posts.id AND likes.user_id = $2) AS is_liked
+                EXISTS (SELECT 1 FROM likes WHERE likes.post_id = posts.id AND likes.user_id = $2) AS is_liked,
+                (SELECT COUNT(*) FROM posts AS r WHERE r.parent_id = posts.id)::int AS reply_count
             FROM posts 
             LEFT JOIN users ON users.id = posts.user_id
             WHERE posts.public_id = $1 
@@ -485,12 +487,14 @@ app.get('/user/post/:postId', optionalAuth, async (req, res, next) => {
                 users.first_name,
                 users.last_name,
                 users.avatar_url,
-                users.handle
+                users.handle,
+                (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id)::int AS like_count,
+                EXISTS (SELECT 1 FROM likes WHERE likes.post_id = posts.id AND likes.user_id = $2) AS is_liked
             FROM posts
             LEFT JOIN users ON users.id = posts.user_id
             WHERE posts.parent_id = (SELECT id FROM posts WHERE public_id = $1)
             ORDER BY posts.id DESC
-            `, [postId])
+            `, [postId, loggedUser])
 
         const { author_public_id, ...post } = data.rows[0];
         post.isOwner = req.user?.payload === author_public_id;

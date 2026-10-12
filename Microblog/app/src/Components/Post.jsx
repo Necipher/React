@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import { usePostContext } from "../context/PostContext";
 
 
-const Post = ({ avatar_url, content, handle, username, photo, public_id, created_at, isOwner, likeCount, isLiked }) => {
+const Post = ({ avatar_url, content, handle, username, photo, public_id, created_at, isOwner, likeCount, isLiked, replyCount }) => {
     const navigate = useNavigate();
     const [localContent, setLocalContent] = useState(content)
     const { deleteAPost, updateAPost, likeAPost, deleteALike } = usePostContext();
@@ -55,6 +55,11 @@ const Post = ({ avatar_url, content, handle, username, photo, public_id, created
 
     const action = liked ? onUnlike : onLike
 
+    function onReplyClick(e) {
+        e.stopPropagation();
+        navigate(`/${handle}/status/${public_id}`)
+    }
+
 
 
     useDismiss(isOptionMenuOn, setisOptionMenuOn);
@@ -96,7 +101,7 @@ const Post = ({ avatar_url, content, handle, username, photo, public_id, created
             <div className={style.operations}>
                 <button className={style.operationButton}>{time}</button>
                 <button onClick={action} className={liked ? `${style.operationButton} ${style.active}` : `${style.operationButton}`}>Like {nrOfLikes}</button>
-                <button className={style.operationButton}>C</button>
+                <button className={style.operationButton} onClick={onReplyClick}>Replies {replyCount}</button>
                 <button className={style.operationButton}>D</button>
             </div>
         </div >
