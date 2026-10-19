@@ -13,6 +13,7 @@ const Post = ({ avatar_url, content, handle, username, photo, public_id, created
     // Toggles
     const [isOptionMenuOn, setisOptionMenuOn] = useState(false);
     const [isEditOn, setIsEditOn] = useState(false);
+    const [isShareOn, setIsShareOn] = useState(false);
     // Variables
     const time = new Date(created_at).toLocaleString(undefined, { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' })
 
@@ -60,15 +61,28 @@ const Post = ({ avatar_url, content, handle, username, photo, public_id, created
         navigate(`/${handle}/status/${public_id}`)
     }
 
-
+    async function onCopyLink(e) {
+        e.stopPropagation();
+        try {
+            await navigator.clipboard.writeText(`${window.location.origin}/${handle}/status/${public_id}`)
+            setIsShareOn(false)
+        } catch (err) {
+            console.error(err)
+        }
+    }
 
     useDismiss(isOptionMenuOn, setisOptionMenuOn);
     useDismiss(isEditOn, setIsEditOn);
+    useDismiss(isShareOn, setIsShareOn);
 
     // Button will later also be added for non users so they can quickly interact with the post
     const menuItems = [
         { label: 'Delete Post', action: () => { deleteAPost({ postId: public_id }); navigate('/') } },
         { label: 'Edit Post', action: () => { setisOptionMenuOn(false); setIsEditOn(true) } }
+    ]
+
+    const shareItems = [
+        { label: 'Copy Link', action: (e) => onCopyLink(e) }
     ]
 
     function goToProfile(e) {
@@ -102,7 +116,10 @@ const Post = ({ avatar_url, content, handle, username, photo, public_id, created
                 <button className={style.operationButton}>{time}</button>
                 <button onClick={action} className={liked ? `${style.operationButton} ${style.active}` : `${style.operationButton}`}>Like {nrOfLikes}</button>
                 <button className={style.operationButton} onClick={onReplyClick}>Replies {replyCount}</button>
-                <button className={style.operationButton}>D</button>
+                <button className={style.operationButton} onClick={(e) => {e.stopPropagation(); setIsShareOn(!isShareOn)}}>Share</button>
+                {isShareOn && <div className={style.optionMenu} onClick={(e) => e.stopPropagation()}>
+                    {shareItems.map((button) => <button key={button.label} onClick={button.action}>{button.label}</button>)}
+                </div>}
             </div>
         </div >
 
